@@ -1,3 +1,3 @@
-const GAME_ROMME = "romme";
+const GAME_ROMMY = "rommy";
 
-#export GAME_ROMME;
+#export GAME_ROMMY;
