@@ -11,11 +11,11 @@
   <body>
     <div id="spinner"></div>
     <header></header>
-    <main>
-      <section id="snake" composite></section>
-      <section id="memory" composite></section>
-      <section id="rommy" composite></section>
-      <section id="menu" composite></section>
+    <main id="platform" composite>
+      <section iterate="{{game:platform.games}}">
+        <button id="tile@{{game.item.name}}" composite
+            disabled="{{game.item.disabled}}"></button>
+      </section>
     </main>
     <footer></footer>
   </body>
