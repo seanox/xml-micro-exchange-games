@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<locales>
+  <en>
+    <label key="games.rummy.title" value="Rummy"/>
+  </en>
+  <de>
+    <label key="games.rummy.title" value="Rommé"/>
+  </de>
+</locales>

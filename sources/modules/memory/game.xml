@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<locales>
+  <en>
+    <label key="games.memory.title" value="Memory"/>
+  </en>
+  <de>
+    <label key="games.memory.title" value="Merkspiel"/>
+  </de>
+</locales>
