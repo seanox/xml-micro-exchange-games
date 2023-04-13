@@ -701,7 +701,7 @@ compliant("window.location.combine", (...paths) =>
 		 * object or map with parameters for the XSLTProcessor can be passed.
 		 * When using the transformation, the return type changes to a
 		 * DocumentFragment.
-		 * @param  locators  locator
+		 * @param  locator   locator
 		 * @param  transform locator of the transformation style
 		 *     With the boolean true, the style is derived from the locator by
 		 *     using the file extension xslt.
@@ -885,119 +885,6 @@ compliant("window.location.combine", (...paths) =>
 	});
 
 	DataSource.locales.selection = locale.length ? locale[0] : DataSource.locales[0];
-})();
-
-/**
- * (Resource)Messages is a static DataSource extension for internationalization
- * and localization. The implementation is based on a set of key-value or
- * label-value data which is stored in the locales.xml of the DataSource.
- *
- *     + data
- *       + de
- *       + en
- *       - locales.xml
- *     + modules
- *     + resources
- *     - index.html
- *
- * The elements for the supported languages are organized in locales in this
- * file. Locales is a set of supported country codes. In each country code, the
- * key values are recorded as label entries.
- *
- *     <?xml version="1.0"?>
- *     <locales>
- *       <de>
- *         <label key="contact.title" value="Kontakt"/>
- *         <label key="contact.development.title">Entwicklung</label>
- *         ...
- *       </de>
- *       <en default="true">
- *         <label key="contact.title" value="Contact"/>
- *         <label key="contact.development.title">Development</label>
- *         ...
- *       </en>
- *     </locales>
- *
- * The language is selected automatically on the basis of the language setting
- * of the browser. If the language set there is not supported, the language
- * declared as 'default' is used.
- *
- * After loading the application, Messages are available as an associative
- * array and can be used directly in JavaScript and Markup via Expression
- * Language.
- *
- *     Messages["contact.title"];
- *
- *     <h1 output="{{Messages['contact.title']}}"/>
- *
- * In addition, the object message is also provided. Unlike Messages, message is
- * an object tree analogous to the keys from Messages. The dot in the keys is
- * the indicator of the levels in the tree.
- *
- *     messages.contact.title;
- *
- *     <h1 output="{{messages.contact.title}}"/>
- *
- * Both objects are only available if there are also labels.
- *
- * @author  Seanox Software Solutions
- * @version 1.6.0 20230304
- */
-(() => {
-
-	compliant("messages", {});
-	compliant("Messages", {});
-
-	const _localize = DataSource.localize;
-
-	DataSource.localize = (locale) => {
-
-		_localize(locale);
-
-		delete window.messages;
-		delete window.Messages;
-
-		window.Messages = {
-			customize(label, ...values) {
-				let text = Messages[label] || "";
-				for (let index = 0; index < values.length; index++)
-					text = text.replace(new RegExp("\\{" + index + "\\}", "g"), values[index]);
-				return text.replace(/\{\d+\}/g, "");
-			}
-		}
-
-		const map = new Map();
-		const xpath = "/locales/" + DataSource.locale + "/label";
-		const result = DataSource.data.evaluate(xpath, DataSource.data, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
-		for (let node = result.iterateNext(); node; node = result.iterateNext())
-			map.set((node.getAttribute("key") || "").trim(),
-				((node.getAttribute("value") || "").trim()
-					|| (node.textContent || "").trim()).unescape());
-		new Map([...map.entries()].sort()).forEach((value, key) => {
-			const match = key.match(/^(?:((?:\w+\.)*\w+)\.)*(\w+)$/);
-			if (match) {
-				// In order for the object tree to branch from each level, each
-				// level must be an object. Therefore, an anonymous object is
-				// used for the level, which returns the actual text via
-				// Object.prototype.toString().
-				const namespace = "messages" + (match[1] ? "." + match[1] : "");
-				Object.defineProperty(Namespace.use(namespace), match[2], {
-					value: {toString() {return value;}}
-				});
-				Object.defineProperty(Namespace.use("Messages"), key, {
-					value
-				});
-			}
-		});
-	};
-
-	// Messages are based on DataSources. To initialize, DataSource.localize()
-	// must be overwritten and loading of the key-value pairs is embedded.
-	if (DataSource.data
-			&& DataSource.locale
-			&& DataSource.locales
-			&& DataSource.locales.includes(DataSource.locale))
-		DataSource.localize(DataSource.locale);
 })();
 
 /**
@@ -1631,7 +1518,7 @@ compliant("window.location.combine", (...paths) =>
  * nesting of the DOM must match.
  *
  * @author  Seanox Software Solutions
- * @version 1.6.0 20230402
+ * @version 1.7.0 20230412
  */
 (() => {
 
@@ -1666,9 +1553,6 @@ compliant("window.location.combine", (...paths) =>
 
 		/** Constant for attribute message */
 		get ATTRIBUTE_MESSAGE() {return "message";},
-
-		/** Constant for attribute namespace */
-		get ATTRIBUTE_NAMESPACE() {return "namespace";},
 
 		/** Constant for attribute notification */
 		get ATTRIBUTE_NOTIFICATION() {return "notification";},
@@ -1706,7 +1590,7 @@ compliant("window.location.combine", (...paths) =>
 		 * that is cached in the meta-object. Other attributes are only cached
 		 * if they contain an expression.
 		 */
-		get PATTERN_ATTRIBUTE_ACCEPT() {return /^(composite|condition|events|id|import|interval|iterate|message|namespace|notification|output|release|render|strict|validate)$/i;},
+		get PATTERN_ATTRIBUTE_ACCEPT() {return /^(composite|condition|events|id|import|interval|iterate|message|notification|output|release|render|strict|validate)$/i;},
 
 		/**
 		 * Pattern for all static attributes.
@@ -1754,11 +1638,15 @@ compliant("window.location.combine", (...paths) =>
 		 */
 		get PATTERN_COMPOSITE_SCRIPT() {return /^composite\/javascript$/i;},
 
-		/** Pattern for a composite id (based on a word) */
-		get PATTERN_COMPOSITE_ID() {return /^[_a-z]\w*$/i;},
+		/**
+		 * Pattern for a composite id (based on a word e.g. name@namespace:...)
+		 * - group 1: name
+		 * - group 2: namespace (optional)
+		 */
+		get PATTERN_COMPOSITE_ID() {return /^([_a-z]\w*)(?:@([_a-z]\w*(?::[_a-z]\w*)*))?$/i;},
 
 		/**
-		 * Pattern for an element id (e.g. name:qualifier...@model...)
+		 * Pattern for an element id (e.g. name:qualifier...@model:...)
 		 * - group 1: name
 		 * - group 2: qualifier(s) (optional)
 		 * - group 3: unique identifier (optional)
@@ -1784,6 +1672,9 @@ compliant("window.location.combine", (...paths) =>
 		get EVENT_MOUNT_START() {return "MountStart";},
 		get EVENT_MOUNT_NEXT() {return "MountNext";},
 		get EVENT_MOUNT_END() {return "MountEnd";},
+
+		/** Constants of events when using modules */
+		get EVENT_MODUL_LOAD() {return "ModulLoad";},
 
 		/** Constants of events when using HTTP */
 		get EVENT_HTTP_START() {return "HttpStart";},
@@ -2691,11 +2582,11 @@ compliant("window.location.combine", (...paths) =>
 		 * The following attributes and elements are supported:
 		 *
 		 * - Attributes:
-		 *     COMPOSITE    INTERVAL        OUTPUT
-		 *     CONDITION    ITERATE         RELEASE
-		 *     EVENTS       MESSAGE         RENDER
-		 *     ID           NAMESPACE       VALIDATE
-		 *     IMPORT       NOTIFICATION
+		 *     COMPOSITE    INTERVAL        RELEASE
+		 *     CONDITION    ITERATE         RENDER
+		 *     EVENTS       MESSAGE         VALIDATE
+		 *     ID           NOTIFICATION
+		 *     IMPORT       OUTPUT
 		 *
 		 * - Expression Language
 		 * - Scripting
@@ -3155,10 +3046,11 @@ compliant("window.location.combine", (...paths) =>
 				// excludes markers of conditions as text nodes.
 				if (selector instanceof Element
 						&& object.attributes.hasOwnProperty(Composite.ATTRIBUTE_COMPOSITE)) {
-					let model = String(object.attributes[Composite.ATTRIBUTE_ID] || "").trim();
-					if (!model.match(Composite.PATTERN_COMPOSITE_ID))
-						throw new Error(`Invalid composite id${model ? ": " + model : ""}`);
-
+					const locate = _mount_locate(selector);
+					if (!locate.namespace)
+						locate.namespace = [];
+					locate.namespace.push(locate.model);
+					let model = locate.namespace.join(".");
 					if (!_models.has(model)) {
 						_models.add(model);
 						model = Object.lookup(model);
@@ -3622,13 +3514,11 @@ compliant("window.location.combine", (...paths) =>
 				object = _render_meta[composite.ordinal()];
 				if (!object)
 					throw new Error("Unknown composite");
-				resource = composite.id;
-				if (!object.attributes.hasOwnProperty(Composite.ATTRIBUTE_STRICT))
-					resource = resource.uncapitalize();
 				const meta = _mount_locate(composite);
-				if (meta && meta.namespace)
-					resource = meta.namespace.concat(resource);
-				else resource = [resource];
+				if (!meta.namespace)
+					meta.namespace = [];
+				meta.namespace.push(meta.model);
+				resource = meta.namespace;
 			}
 
 			const context = Composite.MODULES + "/" + resource.join("/");
@@ -3646,9 +3536,7 @@ compliant("window.location.combine", (...paths) =>
 			// or composite ID are invalid, but this should already run on error
 			// before, so it is not done here -- otherwise this is a bug!
 
-			resource = resource.join(".");
-
-			const lookup = Object.lookup(resource);
+			const lookup = Object.lookup(resource.join("."));
 
 			// If the module has already been loaded, it is only necessary to
 			// check whether the markup must be inserted. CSS should already
@@ -3666,6 +3554,9 @@ compliant("window.location.combine", (...paths) =>
 				return;
 			}
 
+			resource = resource.join("/");
+			if (_render_cache[context + ".composite"] === undefined)
+				Composite.fire(Composite.EVENT_MODUL_LOAD, composite, resource);
 			_render_cache[context + ".composite"] = null;
 
 			// The sequence of loading is strictly defined: JS, CSS, HTML
@@ -3801,52 +3692,30 @@ compliant("window.location.combine", (...paths) =>
 	 * or no enclosing composite was used, null is returned.
 	 *
 	 * @param  element
-	 * @param  namespace
 	 * @return determined meta-object for the passed element, otherwise null
 	 * @throws An error occurs in the following cases:
 	 *     - in the case of an invalid composite ID
 	 *     - in the case of an invalid element ID
 	 */
-	const _mount_locate = (element, namespace = false) => {
+	const _mount_locate = (element) => {
 
 		if (!(element instanceof Element))
 			return null;
 
+		// A composite stops the determination. Composites are static
+		// components, comparable to managed beans or named beans, and therefore
+		// normally have no superordinate object levels. But the Composite-ID
+		// can contain a namespace, which is then taken into consideration.
+
 		let serial = (element.getAttribute(Composite.ATTRIBUTE_ID) || "").trim();
 		if (element.hasAttribute(Composite.ATTRIBUTE_COMPOSITE)) {
-			if (!serial.match(Composite.PATTERN_COMPOSITE_ID))
+			const composite = serial.match(Composite.PATTERN_COMPOSITE_ID);
+			if (!composite)
 				throw new Error(`Invalid composite id${serial ? ": " + serial : ""}`);
-
-			// Option namespace restricts the analysis to composites with
-			// ATTRIBUTE_NAMESPACE. If a composite is found without one, the
-			// current namespace is terminated and the found composite is
-			// outside the current namespace.
-
-			const object = _render_meta[element.ordinal()];
-			if (!object || !object.attributes
-					|| !object.attributes.hasOwnProperty(Composite.ATTRIBUTE_NAMESPACE))
-				return !namespace ? {model:serial} : null;
-
-			// Determine from namespace by parent composite elements with
-			// ATTRIBUTE_ID and ATTRIBUTE_NAMESPACE. The prerequisite is that
-			// the direct composite from the model uses ATTRIBUTE_NAMESPACE.
-			// Without the attribute, the composites and thus the models are
-			// without namespace. Thus, there can also be decoupled composites
-			// and thus models in a nested markup.
-
-			const locate = _mount_locate(element.parentNode, true);
-			if (!locate)
-				return {model:serial};
-			if (locate.namespace)
-				locate.namespace.push(locate.model);
-			else locate.namespace = [locate.model];
-			return {namespace:locate.namespace, model:serial};
+			if (!composite[2])
+				return {model:composite[1]};
+			return {namespace:composite[2].split(/:+/), model:composite[1]};
 		}
-
-		const object = _render_meta[element.ordinal()];
-		if (object && object.attributes
-				&& object.attributes.hasOwnProperty(Composite.ATTRIBUTE_NAMESPACE))
-			throw new Error(`Namespace without composite${serial ? " for: " + serial : ""}`);
 
 		const locate = _mount_locate(element.parentNode);
 		if (!element.hasAttribute(Composite.ATTRIBUTE_ID))
@@ -4265,6 +4134,150 @@ compliant("window.location.combine", (...paths) =>
 
 		Composite.render(document.body);
 	});
+})();
+
+/**
+ * (Resource)Messages is a static DataSource extension for internationalization
+ * and localization. The implementation is based on a set of key-value or
+ * label-value data which is stored in the locales.xml of the DataSource.
+ *
+ *     + data
+ *       + de
+ *       + en
+ *       - locales.xml
+ *     + modules
+ *     + resources
+ *     - index.html
+ *
+ * The elements for the supported languages are organized in locales in this
+ * file. Locales is a set of supported country codes. In each country code, the
+ * key values are recorded as label entries.
+ *
+ *     <?xml version="1.0"?>
+ *     <locales>
+ *       <de>
+ *         <label key="contact.title" value="Kontakt"/>
+ *         <label key="contact.development.title">Entwicklung</label>
+ *         ...
+ *       </de>
+ *       <en default="true">
+ *         <label key="contact.title" value="Contact"/>
+ *         <label key="contact.development.title">Development</label>
+ *         ...
+ *       </en>
+ *     </locales>
+ *
+ * The language is selected automatically on the basis of the language setting
+ * of the browser. If the language set there is not supported, the language
+ * declared as 'default' is used.
+ *
+ * If the locales contain a key more than once, the first one is used. Messages
+ * principally cannot be overwritten. What should be noted in the following
+ * description also for the modules.
+ *
+ * After loading the application, Messages are available as an associative
+ * array and can be used directly in JavaScript and Markup via Expression
+ * Language.
+ *
+ *     Messages["contact.title"];
+ *
+ *     <h1 output="{{Messages['contact.title']}}"/>
+ *
+ * In addition, the object message is also provided. Unlike Messages, message is
+ * an object tree analogous to the keys from Messages. The dot in the keys is
+ * the indicator of the levels in the tree.
+ *
+ *     messages.contact.title;
+ *
+ *     <h1 output="{{messages.contact.title}}"/>
+ *
+ * Both objects are only available if there are also labels.
+ *
+ * Extension for modules: These can also provide locales/messages in the module
+ * directory, which are loaded in addition to the locales/messages from the data
+ * directory -- even at runtime. Again, existing keys cannot be overwritten.
+ *
+ * @author  Seanox Software Solutions
+ * @version 1.7.0 20230413
+ */
+(() => {
+
+	compliant("messages", {});
+	compliant("Messages", {});
+
+	const _datasource = [DataSource.data];
+
+	const _localize = DataSource.localize;
+
+	const _load = (data) => {
+		const map = new Map();
+		const xpath = "/locales/" + DataSource.locale + "/label";
+		const result = data.evaluate(xpath, data, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+		for (let node = result.iterateNext(); node; node = result.iterateNext()) {
+			const key = (node.getAttribute("key") || "").trim();
+			if (!map.has(key)) {
+				const value = ((node.getAttribute("value") || "").trim()
+					|| (node.textContent || "").trim()).unescape();
+				map.set(key, value);
+			}
+		}
+		new Map([...map.entries()].sort()).forEach((value, key) => {
+			const match = key.match(/^(?:((?:\w+\.)*\w+)\.)*(\w+)$/);
+			if (match) {
+				// In order for the object tree to branch from each level, each
+				// level must be an object. Therefore, an anonymous object is
+				// used for the level, which returns the actual text via
+				// Object.prototype.toString().
+				const namespace = "messages" + (match[1] ? "." + match[1] : "");
+				if (!Namespace.exists(namespace, match[2]))
+					Object.defineProperty(Namespace.use(namespace), match[2], {
+						value: {toString() {return value;}}
+					});
+				if (!Namespace.exists("Messages", key))
+					Object.defineProperty(Namespace.use("Messages"), key, {
+						value
+					});
+			}
+		});
+	};
+
+	DataSource.localize = (locale) => {
+
+		_localize(locale);
+
+		delete window.messages;
+		delete window.Messages;
+
+		window.Messages = {
+			customize(label, ...values) {
+				let text = Messages[label] || "";
+				for (let index = 0; index < values.length; index++)
+					text = text.replace(new RegExp("\\{" + index + "\\}", "g"), values[index]);
+				return text.replace(/\{\d+\}/g, "");
+			}
+		}
+
+		_datasource.forEach(data => _load(data));
+	};
+
+	// Messages are based on DataSources. To initialize, DataSource.localize()
+	// must be overwritten and loading of the key-value pairs is embedded.
+	if (DataSource.data
+			&& DataSource.locale
+			&& DataSource.locales
+			&& DataSource.locales.includes(DataSource.locale))
+		DataSource.localize(DataSource.locale);
+
+	Composite.listen(Composite.EVENT_MODUL_LOAD, (event, context, module) => {
+		const request = new XMLHttpRequest();
+		request.open("GET", Composite.MODULES + "/" + module + ".xml", false);
+		request.send();
+		if (request.status !== 200)
+			return;
+		const data = new DOMParser().parseFromString(request.responseText,"application/xml");
+		_datasource.push(data);
+		_load(data)
+   });
 })();
 
 /**
