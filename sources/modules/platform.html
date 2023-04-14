@@ -1,0 +1,10 @@
+<section iterate="{{game:platform.games}}" condition="{{!platform.selection}}">
+  <button id="select#{{game.item.name}}"
+      disabled="{{game.item.disabled}}">
+    <div id="tile@{{game.item.name}}" composite></div>
+  </button>
+</section>
+
+<section iterate="{{game:[platform.selection]}}" condition="{{!!platform.selection}}">
+  <div id="game@{{platform.selection}}" composite></div>
+</section>

@@ -10,6 +10,7 @@ const GAME_SNAKE = "snake";
 
 // which should not be public,
 // is used as a variable in the private scope
+// TODO:
 
 const platform = Reactive({
     get games() {
@@ -26,6 +27,12 @@ const platform = Reactive({
             platform.selection = event.currentTarget.id.replace(/^.*#/, "");
         }
     }
+});
+
+// Modules delete themselves from the view at the end, which automatically
+// resets the platform selection.
+Composite.listen(Composite.EVENT_MODULE_UNDOCK, () => {
+    platform.selection = null;
 });
 
 #export platform;
