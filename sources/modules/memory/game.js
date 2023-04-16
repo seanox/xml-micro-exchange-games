@@ -22,7 +22,7 @@ const game = Reactive({
     },
     view: VIEW_INTRODUCTION,
     get markup() {
-        const resource = `${Composite.MODULES}/${game.name}/${this.view}.html`;
+        const resource = `${Composite.MODULES}/${game.name}/views/${this.view}.html`;
         const markup = Composite.load(resource).trim();
         const template = document.createElement("template");
         template.innerHTML = markup;
