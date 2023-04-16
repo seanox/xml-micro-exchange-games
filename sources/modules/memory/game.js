@@ -11,8 +11,9 @@ const game = Reactive({
     get disabled() {
         return undefined;
     },
-    init() {
-        this.view = VIEW_INTRODUCTION;
+    dock() {
+        game.view = VIEW_INTRODUCTION;
+        game.settings.players = ["", "", "", ""];
     },
     dispose() {
         const node = document.getElementById("game@" + game.name);
@@ -20,7 +21,7 @@ const game = Reactive({
     },
     undock() {
     },
-    view: VIEW_INTRODUCTION,
+    view: null,
     get markup() {
         const resource = `${Composite.MODULES}/${game.name}/views/${this.view}.html`;
         const markup = Composite.load(resource).trim();
@@ -36,6 +37,23 @@ const game = Reactive({
         }
     },
     settings: {
+        players: null,
+        get playersCount() {
+            return this.players.filter(player =>
+                new RegExp(game.settings.playersPattern).test(player)).length;
+        },
+        get playersPattern() {
+            return "^[\\w\\xC4\\xE4\\xD6\\xF6\\xDC\\xFC-]{1,8}$";
+        },
+        get organizer() {
+            return this.players.find(player =>
+                new RegExp(game.settings.playersPattern).test(player));
+        },
+        back: {
+            onClick(event) {
+                game.view = VIEW_INTRODUCTION;
+            }
+        },
         next: {
             onClick(event) {
                 game.view = VIEW_INVITATION;
@@ -43,6 +61,11 @@ const game = Reactive({
         }
     },
     invitation: {
+        back: {
+            onClick(event) {
+                game.view = VIEW_SETTINGS;
+            }
+        },
         next: {
             onClick(event) {
                 game.view = VIEW_DESK;
