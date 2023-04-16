@@ -5,6 +5,11 @@
   </button>
 </section>
 
-<section iterate="{{game:[platform.selection]}}" condition="{{!!platform.selection}}">
+<!--
+  The enclosing condition ensures that the composite is also changed when
+  platform.selection is changed. This detour is necessary because the Composite
+  ID can only be read initially and cannot be changed at runtime.
+-->
+<section condition="{{!!platform.selection}}">
   <div id="game@{{platform.selection}}" composite></div>
 </section>
