@@ -1,0 +1,7 @@
+#game\@memory {
+}
+#game\@memory #settings {
+}
+#game\@memory #settings input[type='text'] {
+  text-transform: uppercase;
+}
