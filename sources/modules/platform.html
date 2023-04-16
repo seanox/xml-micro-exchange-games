@@ -5,6 +5,10 @@
   </button>
 </section>
 
+<p condition="{{!platform.selection}}">
+  {{messages.platform.privacy.text}}
+</p>
+
 <!--
   The enclosing condition ensures that the composite is also changed when
   platform.selection is changed. This detour is necessary because the Composite
