@@ -1,6 +1,9 @@
 <?xml version="1.0"?>
 <locales>
   <en>
+    <label key="platform.room.text">
+      Play with up to four of your friends in a private room.
+    </label>
     <label key="platform.privacy.text">
       This platform focuses on anonymity and thus neither personal data is
       collected nor exchanged. There are no cookies and the registration of
@@ -9,6 +12,9 @@
     </label>
   </en>
   <de>
+    <label key="platform.room.text">
+      Spiele mit bis zu vier von Deinen Freunden in einem privaten Raum.
+    </label>
     <label key="platform.privacy.text">
       Bei dieser Plattform steht die Anonymität im Vordergrund und so werden
       persönliche Daten erhoben noch ausgetauscht. Es gibt keine Cookies und auf

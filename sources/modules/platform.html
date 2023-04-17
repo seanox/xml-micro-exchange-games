@@ -1,14 +1,17 @@
-<section iterate="{{game:platform.games}}" condition="{{!platform.selection}}">
-  <button id="select#{{game.item.name}}"
-      disabled="{{game.item.disabled}}">
-    <div id="tile@{{game.item.name}}" composite></div>
-  </button>
+<section condition="{{!platform.selection}}">
+  <p condition="{{!platform.selection}}">
+    {{messages.platform.room.text}}
+  </p>
+  <div iterate="{{game:platform.games}}">
+    <button id="select#{{game.item.name}}"
+        disabled="{{game.item.disabled}}">
+      <div id="tile@{{game.item.name}}" composite></div>
+    </button>
+  </div>
+  <p condition="{{!platform.selection}}">
+    {{messages.platform.privacy.text}}
+  </p>
 </section>
-
-<p condition="{{!platform.selection}}">
-  {{messages.platform.privacy.text}}
-</p>
-
 <!--
   The enclosing condition ensures that the composite is also changed when
   platform.selection is changed. This detour is necessary because the Composite
