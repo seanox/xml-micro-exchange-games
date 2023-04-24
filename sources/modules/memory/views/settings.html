@@ -2,26 +2,23 @@
   <tr>
     <td>
       <h1>{{messages.games.memory.settings.title}}</h1>
-      <h2>{{messages.games.memory.settings.deck.title}}</h2>
-      <button>
-        <img src="modules/memory/decks/abstract/title.png"/>
-        <p>{{messages.games.memory.deck.abstract.title}}</p>
-        <p>{{messages.games.memory.deck.abstract.text}}</p>
-      </button>
-      <button>
-        <img src="modules/memory/decks/same/title.png"/>
-        <p>{{messages.games.memory.deck.same.title}}</p>
-        <p>{{messages.games.memory.deck.same.text}}</p>
-      </button>
-      <button>
-        <img src="modules/memory/decks/inverted/title.png"/>
-        <p>{{messages.games.memory.deck.inverted.title}}</p>
-        <p>{{messages.games.memory.deck.inverted.text}}</p>
-      </button>
+      <h2>
+        {{messages.games.memory.settings.deck.title}}
+        <span condition="{{not memory.game.settings.deck.selection}}">
+          {{messages.games.memory.settings.deck.description}}
+        </span>
+      </h2>
+      <section iterate="{{deck:['abstract','same','inverted']}}">
+        <button id="deck#{{deck.item}}" class="{{memory.game.settings.deck.selection eq deck.item ? 'selected' : ''}}">
+          <img @src="modules/memory/decks/{{deck.item}}/title.png"/>
+          <p>{{messages.games.memory.deck[deck.item].title}}</p>
+          <p>{{messages.games.memory.deck[deck.item].text}}</p>
+        </button>
+      </section>
       <h2>
         {{messages.games.memory.settings.players.title}}
-        <span condition="{{memory.game.settings.playersCount gt 0}}">
-          ({{memory.game.settings.playersCount}}x)
+        <span condition="{{memory.game.settings.playersCount lt 2}}">
+          {{messages.games.memory.settings.players.description}}
         </span>
       </h2>
       <div iterate="{{player:memory.game.settings.players}}">
@@ -48,7 +45,7 @@
       <button id="back">
         {{messages.games.memory.introduction.title}}
       </button>
-      <button id="start">
+      <button id="next" disabled="{{memory.game.invitation.disabled}}">
         {{messages.games.memory.invitation.title}}
       </button>
     </td>
