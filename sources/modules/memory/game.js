@@ -1,8 +1,8 @@
 const VIEW_INTRODUCTION = "introduction";
-const VIEW_SETTINGS     = "settings";
-const VIEW_INVITATION   = "invitation";
-const VIEW_DESK         = "desk";
-const VIEW_SCORE        = "score";
+const VIEW_SETTINGS = "settings";
+const VIEW_INVITATION = "invitation";
+const VIEW_DESK = "desk";
+const VIEW_SCORE = "score";
 
 const game = Reactive({
     get name() {
@@ -40,14 +40,13 @@ const game = Reactive({
         players: null,
         get playersCount() {
             return this.players.filter(player =>
-                new RegExp(game.settings.playersPattern).test(player)).length;
+                new RegExp(PATTERN_PLAYER_ALIAS).test(player)).length;
         },
-        get playersPattern() {
-            return "^[\\w\\xC4\\xE4\\xD6\\xF6\\xDC\\xFC-]{1,8}$";
-        },
-        get organizer() {
-            return this.players.find(player =>
-                new RegExp(game.settings.playersPattern).test(player));
+        deck: {
+            selection: null,
+            onClick(event) {
+                game.settings.deck.selection = event.currentTarget.id.replace(/^.*#/, "");
+            }
         },
         back: {
             onClick(event) {
@@ -61,6 +60,18 @@ const game = Reactive({
         }
     },
     invitation: {
+        get disabled() {
+            if (!game.settings.deck.selection)
+                return true;
+            if (game.settings.playersCount < 2)
+                return true;
+            const pattern = new RegExp(PATTERN_PLAYER_ALIAS);
+            for (let index = 0; index < game.settings.players.length; index++)
+                if (!pattern.test(game.settings.players[index])
+                        && game.settings.players[index].length)
+                    return true;
+            return undefined;
+        },
         back: {
             onClick(event) {
                 game.view = VIEW_SETTINGS;
