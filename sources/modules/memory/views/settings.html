@@ -1,17 +1,56 @@
 <table id="settings">
   <tr>
-    <td colspan="3">
-      settings
+    <td>
+      <h1>{{messages.games.memory.settings.title}}</h1>
+      <h2>{{messages.games.memory.settings.deck.title}}</h2>
+      <button>
+        <img src="modules/memory/decks/abstract/title.png"/>
+        <p>{{messages.games.memory.deck.abstract.title}}</p>
+        <p>{{messages.games.memory.deck.abstract.text}}</p>
+      </button>
+      <button>
+        <img src="modules/memory/decks/same/title.png"/>
+        <p>{{messages.games.memory.deck.same.title}}</p>
+        <p>{{messages.games.memory.deck.same.text}}</p>
+      </button>
+      <button>
+        <img src="modules/memory/decks/inverted/title.png"/>
+        <p>{{messages.games.memory.deck.inverted.title}}</p>
+        <p>{{messages.games.memory.deck.inverted.text}}</p>
+      </button>
+      <h2>
+        {{messages.games.memory.settings.players.title}}
+        <span condition="{{memory.game.settings.playersCount gt 0}}">
+          ({{memory.game.settings.playersCount}}x)
+        </span>
+      </h2>
+      <div iterate="{{player:memory.game.settings.players}}">
+        <p>
+          <label for="players:{{player.index}}">
+            Alias {{player.index +1}}
+            {{(?#[players:/player.index/].validationMessage) or ''}}
+          </label>
+          <input type="text" id="players:{{player.index}}" events="input change"
+              maxlength="8" pattern="{{PATTERN_PLAYER_ALIAS}}"
+              message="{{messages.games.memory.settings.players.invalid.message}}"/>
+        </p>
+      </div>
+      <p>
+        {{messages.games.memory.settings.players.text}}
+      </p>
     </td>
   </tr>
   <tr>
     <td>
-      <button id="abort@memory:game"></button>
-    </td>
-    <td></td>
-    <td>
-      <button id="back"></button>
-      <button id="next"></button>
+      <button id="abort@memory:game">
+        {{messages.games.memory.abort.title}}
+      </button>
+      <button id="back">
+        {{messages.games.memory.introduction.title}}
+      </button>
+      <button id="start">
+        {{messages.games.memory.invitation.title}}
+      </button>
     </td>
   </tr>
 </table>
