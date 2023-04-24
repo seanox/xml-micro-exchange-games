@@ -5,3 +5,6 @@
 #game\@memory #settings input[type='text'] {
   text-transform: uppercase;
 }
+#game\@memory #settings label {
+  display: block;
+}
