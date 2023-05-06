@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<locales>
+  <en>
+    <label key="memory.title" value="Memory"/>
+    <label key="memory.abort.title" value="Abort"/>
+    <label key="memory.introduction.title" value="Introduction"/>
+    <label key="memory.introduction.text">
+      The memory game is for 2 to 4 players. It consists of a set of matching
+      pairs of cards, where each card has a illustration and a uniform back.
+      The cards are shuffled and laid out on the playing area with their backs
+      facing up. Clockwise, a randomly determined player begins to turn over two
+      cards by clicking on them so that all players can see the illustration.
+      Once the player has found two matching cards, they are removed from the
+      game for him and he can turn over another two cards. If the illustration
+      of the flipped cards does not match, the visible cards are automatically
+      placed back on the playing area with their backs facing up and it is the
+      next player's turn. The game ends when the playing area is empty. The
+      player with the most cards wins. If another round of play is desired, the
+      winner from the last round begins. If there is more than one winner,
+      random chance decides between them. The game ends automatically after 5
+      minutes of inactivity.
+    </label>
+    <label key="memory.settings.title" value="Settings"/>
+    <label key="memory.settings.deck.title" value="TODO:"/>
+    <label key="memory.settings.players.title" value="TODO:"/>
+    <label key="memory.settings.players.text">
+    </label>
+    <label key="memory.invitation.title" value="Invitation"/>
+    <label key="memory.score.title" value="Score"/>
+    <!-- TODO -->
+  </en>
+  <de>
+    <label key="memory.title" value="Merkspiel"/>
+    <label key="memory.abort.title" value="Abbrechen"/>
+    <label key="memory.deck.abstract.title" value="Form und Farbe"/>
+    <label key="memory.deck.abstract.text">
+      Suche und finde gleiche Formen mit gleichen Farben.
+    </label>
+    <label key="memory.deck.same.title" value="Merkfix"/>
+    <label key="memory.deck.same.text">
+      Suche und finde gleiche Abbildungen.
+    </label>
+    <label key="memory.deck.inverted.title" value="Umgekehrt"/>
+    <label key="memory.deck.inverted.text">
+      Suche und finde Formen und Farben in umgedrehter Darstellung.
+    </label>
+    <label key="memory.introduction.title" value="Anleitung"/>
+    <label key="memory.introduction.text">
+      Das Merkspiel ist für 2 bis 4 Spieler. Es besteht aus einem Satz
+      zusammengehörender Kartenpaare, bei dem jede Karte eine Abbildung und eine
+      einheitliche Rückseite hat. Die Karten werden gemischt und mit der
+      Rückseite nach oben auf der Spielfläche ausgelegt. In Uhrzeigerrichtung
+      beginnt ein zufällig ermittelter Spieler zwei Karten durch Anklicken
+      umzudrehen, so dass alle Spieler die Abbildung sehen können. Hat der
+      Spieler zwei zusammengehörende Karten gefunden, werden diese für ihn aus
+      dem Spiel genommen und er kann weitere zwei Karten umdrehen. Passen die
+      Abbildung der umgedrehten Karten nicht, werden die sichtbaren Karten
+      automatisch wieder mit der Rückseite auf der Spielfläche abgelegt und der
+      nächste Spieler ist an der Reihe. Das Spiel endet, wenn die Spielfläche
+      leer ist. Es gewinnt der Spieler mit den meisten Karten. Wenn eine weitere
+      Spielrunde gewünscht wird, beginnt der Gewinner aus der letzten Runde.
+      Gibt es mehrere Gewinner, entscheidet zwischen diesen der Zufall. Das
+      Spiel endet automatisch bei einer Inaktivität von 5 Minuten.
+    </label>
+    <label key="memory.settings.title" value="Einstellungen"/>
+    <label key="memory.settings.deck.title" value="Kartensatz"/>
+    <label key="memory.settings.deck.description">
+      einer muss ausgewählt werden
+    </label>
+    <label key="memory.settings.players.title" value="Spieler"/>
+    <label key="memory.settings.players.description">
+      mind. zwei sind erforderlich
+    </label>
+    <label key="memory.settings.players.invalid.message">
+      max. 8 Zeichen langer alphanumerischer Text
+    </label>
+    <label key="memory.settings.players.text">
+      Spieler werden über einen Alias repräsentiert und so entspricht die Anzahl
+      der Spieler der Anzahl ausgefüllter Felder.
+    </label>
+    <label key="memory.invitation.title" value="Einladung"/>
+    <label key="memory.invitation.mail">
+      Liebe Freunde,
+
+      lasst uns {0} spielen.
+      {1}
+
+      {2}
+
+      Anbei die Links mit euren vorbereiteten Zugängen.
+      {3}
+
+      Bis gleich :-)
+
+      ----
+      {4}
+    </label>
+    <label key="memory.score.title" value="Spielstand"/>
+  </de>
+</locales>
