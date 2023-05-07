@@ -1,4 +1,3 @@
-#import utils/observer;
 #import utils/query;
 
 const VIEW_INTRODUCTION = "introduction";
@@ -7,7 +6,7 @@ const VIEW_INVITATION = "invitation";
 const VIEW_DESK = "desk";
 const VIEW_SCORE = "score";
 
-const rummy = Reactive({
+const game = Reactive({
     get name() {
         return GAME_RUMMY;
     },
@@ -20,9 +19,6 @@ const rummy = Reactive({
     },
     undock() {
     }
-});
-
-const game = utils.observer(rummy, {
 });
 
 #export game@games.rummy;
