@@ -14,9 +14,11 @@ const rummy = Reactive({
     get disabled() {
         return true;
     },
-    init() {
+    dock() {
     },
     dispose() {
+    },
+    undock() {
     }
 });
 

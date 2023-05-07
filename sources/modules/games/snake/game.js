@@ -17,6 +17,8 @@ const snake = Reactive({
     init() {
     },
     dispose() {
+    },
+    undock() {
     }
 });
 
