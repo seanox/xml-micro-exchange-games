@@ -1,16 +1,16 @@
 // I have not yet found a way to determine the modules dynamically.
 // The directory index would be a possibility, but that can be disabled and then
 // it doesn't work.
-
 const GAME_MEMORY = "memory";
 const GAME_RUMMY = "rummy";
 const GAME_SNAKE = "snake";
 
 #export GAME_MEMORY GAME_RUMMY GAME_SNAKE;
 
-// which should not be public,
-// is used as a variable in the private scope
-// TODO:
+// Patterns are strings so that they can also be used in markup.
+const PATTERN_PLAYER_ALIAS = "^[0-9a-zA-Z\\xC4\\xE4\\xD6\\xF6\\xDC\\xFC]{1,8}$";
+
+#export PATTERN_PLAYER_ALIAS;
 
 const platform = Reactive({
     get games() {
@@ -18,8 +18,8 @@ const platform = Reactive({
         // e.g. the texts are necessary for the use in the selection
         const games = [GAME_MEMORY, GAME_RUMMY, GAME_SNAKE];
         games.forEach(game =>
-            Composite.include(...[game, "game"]));
-        return games.map(game => window[game]["game"]);
+            Composite.include(...["games", game, "game"]));
+        return games.map(game => window["games"][game]["game"]);
     },
     selection: null,
     select: {
