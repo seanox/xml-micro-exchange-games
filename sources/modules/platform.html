@@ -5,7 +5,7 @@
   <div iterate="{{game:platform.games}}">
     <button id="select#{{game.item.name}}"
         disabled="{{game.item.disabled}}">
-      <div id="tile@{{game.item.name}}" composite></div>
+      <div id="tile@games:{{game.item.name}}" composite></div>
     </button>
   </div>
   <p condition="{{!platform.selection}}">
@@ -18,5 +18,5 @@
   ID can only be read initially and cannot be changed at runtime.
 -->
 <section condition="{{!!platform.selection}}">
-  <div id="game@{{platform.selection}}" composite></div>
+  <div id="game@games:{{platform.selection}}" composite></div>
 </section>
