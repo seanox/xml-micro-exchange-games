@@ -1,52 +1,53 @@
 <table id="settings">
   <tr>
     <td>
-      <h1>{{messages.memory.settings.title}}</h1>
+      <h1>{{messages.games.memory.settings.title}}</h1>
       <h2>
-        {{messages.memory.settings.deck.title}}
-        <span condition="{{not memory.game.settings.deck}}">
-          {{messages.memory.settings.deck.description}}
+        {{messages.games.memory.settings.deck.title}}
+        <span condition="{{not games.memory.game.settings.deck}}">
+          {{messages.games.memory.settings.deck.description}}
         </span>
       </h2>
-      <section iterate="{{deck:['abstract','same','inverted']}}">
-        <button id="decks#{{deck.item}}" class="{{memory.game.settings.deck eq deck.item ? 'selected' : ''}}">
-          <img @src="modules/memory/decks/{{deck.item}}/title.png"/>
-          <p>{{messages.memory.deck[deck.item].title}}</p>
-          <p>{{messages.memory.deck[deck.item].text}}</p>
+      <section iterate="{{deck:['abstract','same','inverse']}}">
+        <button id="decks#{{deck.item}}" validate
+            class="{{games.memory.game.settings.deck eq deck.item ? 'selected' : ''}}">
+          <img @src="modules/games/memory/decks/{{deck.item}}/title.png"/>
+          <p>{{messages.games.memory.deck[deck.item].title}}</p>
+          <p>{{messages.games.memory.deck[deck.item].text}}</p>
         </button>
       </section>
       <h2>
-        {{messages.memory.settings.players.title}}
-        <span condition="{{memory.game.settings.playersCount lt 2}}">
-          {{messages.memory.settings.players.description}}
+        {{messages.games.memory.settings.players.title}}
+        <span condition="{{games.memory.game.settings.playersCount lt 2}}">
+          {{messages.games.memory.settings.players.description}}
         </span>
       </h2>
-      <div iterate="{{player:memory.game.settings.players}}">
+      <div iterate="{{player:games.memory.game.settings.players}}">
         <p>
           <label for="players:{{player.index}}">
             Alias {{player.index +1}}
             {{(?#[players:/player.index/].validationMessage) or ''}}
           </label>
           <input type="text" id="players:{{player.index}}" events="input change"
-              maxlength="8" pattern="{{PATTERN_PLAYER_ALIAS}}"
-              message="{{messages.memory.settings.players.invalid.message}}"/>
+              maxlength="8" pattern="{{PATTERN_PLAYER_ALIAS}}" validate
+              message="{{messages.games.memory.settings.players.invalid.message}}"/>
         </p>
       </div>
       <p>
-        {{messages.memory.settings.players.text}}
+        {{messages.games.memory.settings.players.text}}
       </p>
     </td>
   </tr>
   <tr>
     <td>
-      <button id="abort@memory:game">
-        {{messages.memory.abort.title}}
+      <button id="abort@games:memory:game">
+        {{messages.games.memory.abort.title}}
       </button>
       <button id="back">
-        {{messages.memory.introduction.title}}
+        {{messages.games.memory.introduction.title}}
       </button>
-      <button id="next" disabled="{{memory.game.invitation.disabled}}">
-        {{messages.memory.invitation.title}}
+      <button id="next" disabled="{{games.memory.game.invitation.disabled}}">
+        {{messages.games.memory.invitation.title}}
       </button>
     </td>
   </tr>
