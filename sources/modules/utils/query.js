@@ -31,21 +31,13 @@ const _create = (meta) => {
 
 const query = {
     create(meta) {
-        meta = Object.assign({}, meta);
-        if (!meta.serial)
-            meta.serial = Math.serial();
-        const queries = [];
-        players.forEach((player, index) => {
-            meta.player = index +1;
-            queries.push(_create(meta));
-        });
-        return queries;
+        const query = _create(meta);
+        return LOCATION + (query ? "?" + query : "");
     },
     read() {
     },
     update(meta) {
-        const query = _create(meta);
-        const url = LOCATION + (query ? "?" + query : "");
+        const url = this.create(meta);
         const object = {title: document.title, url:url};
         window.history.replaceState(object, object.title, object.url);
     },
