@@ -8,7 +8,7 @@
           {{messages.games.memory.settings.deck.description}}
         </span>
       </h2>
-      <section iterate="{{deck:['abstract','same','inverse']}}">
+      <section iterate="{{deck:['abstract','memory','inverse']}}">
         <button id="decks#{{deck.item}}" validate
             class="{{games.memory.game.settings.deck eq deck.item ? 'selected' : ''}}">
           <img @src="modules/games/memory/decks/{{deck.item}}/title.png"/>
