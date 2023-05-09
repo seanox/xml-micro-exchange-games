@@ -45,4 +45,10 @@ Composite.listen(Composite.EVENT_MODULE_UNDOCK, () => {
     platform.selection = null;
 });
 
+// in case of manual changes the page should be reloaded
+// without SiteMap this is easier, because you don't have to care about the
+// status of the view(s).
+window.addEventListener("hashchange",
+    () => window.location.reload(), false);
+
 #export platform;
