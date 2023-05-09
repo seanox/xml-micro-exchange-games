@@ -1,0 +1,52 @@
+<table id="invitation">
+  <tr>
+    <td>
+      <h1>{{messages.games.memory.invitation.title}}</h1>
+      <h2>
+        {{messages.games.memory.settings.deck.title}}
+      </h2>
+      <section>
+        <button class="selected" disabled>
+          <img @src="modules/games/memory/decks/{{games.memory.game.settings.deck}}/title.png"/>
+          <p>{{messages.games.memory.deck[games.memory.game.settings.deck].title}}</p>
+          <p>{{messages.games.memory.deck[games.memory.game.settings.deck].text}}</p>
+        </button>
+      </section>
+      <h2>
+        {{messages.games.memory.settings.players.title}}
+      </h2>
+      <table iterate="{{link:games.memory.game.invitation.links}}">
+        <tr>
+          <td>
+            {{link.item.player}}
+          </td>
+          <td>
+            <button id="link">
+              {{messages.games.memory.copy.title}}
+            </button>
+            <button id="play">
+              {{messages.games.memory.play.title}}
+            </button>
+          </td>
+        </tr>
+      </table>
+      <p></p>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <button id="abort">
+        {{messages.games.memory.abort.title}}
+      </button>
+      <button id="back">
+        {{messages.games.memory.settings.title}}
+      </button>
+      <button id="copy">
+        {{messages.games.memory.copy.title}}
+      </button>
+      <button id="send">
+        {{messages.games.memory.send.title}}
+      </button>
+    </td>
+  </tr>
+</table>
