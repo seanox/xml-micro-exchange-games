@@ -32,6 +32,7 @@
   <de>
     <label key="games.memory.title" value="Merkspiel"/>
     <label key="games.memory.abort.title" value="Abbrechen"/>
+    <label key="games.memory.copy.title" value="Kopieren"/>
     <label key="games.memory.deck.abstract.title" value="Form und Farbe"/>
     <label key="games.memory.deck.abstract.text">
       Suche und finde gleiche Formen mit gleichen Farben.
@@ -62,6 +63,8 @@
       Gibt es mehrere Gewinner, entscheidet zwischen diesen der Zufall. Das
       Spiel endet automatisch bei einer Inaktivität von 5 Minuten.
     </label>
+    <label key="games.memory.play.title" value="Spielen"/>
+    <label key="games.memory.send.title" value="Senden"/>
     <label key="games.memory.settings.title" value="Einstellungen"/>
     <label key="games.memory.settings.deck.title" value="Kartensatz"/>
     <label key="games.memory.settings.deck.description">
