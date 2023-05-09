@@ -22,7 +22,9 @@ const _create = (data) => {
 const query = {
     create(data) {
         const query = _create(data) || "";
-        return LOCATION + (query ? "#" + query : "");
+        if (!query)
+            return LOCATION;
+        return LOCATION + "/" + (query ? "#" + query : "");
     },
     read() {
         const hash = document.location.hash.substring(1);
