@@ -21,7 +21,6 @@ const _create = (data) => {
 
 const query = {
     create(data) {
-        console.log(data);
         const query = _create(data) || "";
         return LOCATION + (query ? "#" + query : "");
     },
