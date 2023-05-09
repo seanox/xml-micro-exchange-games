@@ -1,3 +1,4 @@
+// import of runtime extensions
 #import utils/query;
 
 const VIEW_INTRODUCTION = "introduction";
