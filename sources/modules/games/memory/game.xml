@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
 <locales>
   <en>
-    <label key="games.memory.title" value="Memory"/>
     <label key="games.memory.abort.title" value="Abort"/>
     <label key="games.memory.introduction.title" value="Introduction"/>
     <label key="games.memory.introduction.text">
@@ -20,31 +19,32 @@
       random chance decides between them. The game ends automatically after 5
       minutes of inactivity.
     </label>
+    <label key="games.memory.invitation.title" value="Invitation"/>
+    <label key="games.memory.score.title" value="Score"/>
     <label key="games.memory.settings.title" value="Settings"/>
     <label key="games.memory.settings.deck.title" value="TODO:"/>
     <label key="games.memory.settings.players.title" value="TODO:"/>
     <label key="games.memory.settings.players.text">
     </label>
-    <label key="games.memory.invitation.title" value="Invitation"/>
-    <label key="games.memory.score.title" value="Score"/>
+    <label key="games.memory.title" value="Memory"/>
     <!-- TODO -->
   </en>
   <de>
-    <label key="games.memory.title" value="Merkspiel"/>
     <label key="games.memory.abort.title" value="Abbrechen"/>
     <label key="games.memory.copy.title" value="Kopieren"/>
-    <label key="games.memory.deck.abstract.title" value="Form und Farbe"/>
+    <label key="games.memory.copy.link.title" value="Link kopieren"/>
     <label key="games.memory.deck.abstract.text">
       Suche und finde gleiche Formen mit gleichen Farben.
     </label>
-    <label key="games.memory.deck.memory.title" value="Merkfix"/>
+    <label key="games.memory.deck.abstract.title" value="Form und Farbe"/>
     <label key="games.memory.deck.memory.text">
       Suche und finde gleiche Abbildungen.
     </label>
-    <label key="games.memory.deck.inverse.title" value="Invers"/>
+    <label key="games.memory.deck.memory.title" value="Merkfix"/>
     <label key="games.memory.deck.inverse.text">
       Suche und finde Formen und Farben in umgekehrter Darstellung.
     </label>
+    <label key="games.memory.deck.inverse.title" value="Invers"/>
     <label key="games.memory.introduction.title" value="Anleitung"/>
     <label key="games.memory.introduction.text">
       Das Merkspiel ist für 2 bis 4 Spieler. Es besteht aus einem Satz
@@ -63,13 +63,32 @@
       Gibt es mehrere Gewinner, entscheidet zwischen diesen der Zufall. Das
       Spiel endet automatisch bei einer Inaktivität von 5 Minuten.
     </label>
+    <label key="games.memory.invitation.mail">
+      Liebe Freunde,
+
+      lasst uns {0} spielen.
+      {1}
+
+      {2}
+
+      Anbei die Links mit euren vorbereiteten Zugängen.
+
+      {3}
+
+      Bis gleich :-)
+
+      ----
+      {4}
+    </label>
+    <label key="games.memory.invitation.title" value="Einladung"/>
     <label key="games.memory.play.title" value="Spielen"/>
+    <label key="games.memory.score.title" value="Spielstand"/>
     <label key="games.memory.send.title" value="Senden"/>
     <label key="games.memory.settings.title" value="Einstellungen"/>
-    <label key="games.memory.settings.deck.title" value="Kartensatz"/>
     <label key="games.memory.settings.deck.description">
       einer muss ausgewählt werden
     </label>
+    <label key="games.memory.settings.deck.title" value="Kartensatz"/>
     <label key="games.memory.settings.players.title" value="Spieler"/>
     <label key="games.memory.settings.players.description">
       mind. zwei sind erforderlich
@@ -81,23 +100,6 @@
       Spieler werden über einen Alias repräsentiert und so entspricht die Anzahl
       der Spieler der Anzahl ausgefüllter Felder.
     </label>
-    <label key="games.memory.invitation.title" value="Einladung"/>
-    <label key="games.memory.invitation.mail">
-      Liebe Freunde,
-
-      lasst uns {0} spielen.
-      {1}
-
-      {2}
-
-      Anbei die Links mit euren vorbereiteten Zugängen.
-      {3}
-
-      Bis gleich :-)
-
-      ----
-      {4}
-    </label>
-    <label key="games.memory.score.title" value="Spielstand"/>
+    <label key="games.memory.title" value="Merkspiel"/>
   </de>
 </locales>

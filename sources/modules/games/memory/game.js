@@ -15,6 +15,24 @@ const DECKS = [DECK_ABSTRACT, DECK_MEMORY, DECK_INVERSE];
 
 const UNIQUE = Math.serial();
 
+const _create_invitation_text = () => {
+    const title = String(messages.games.memory.deck[game.settings.deck].title)
+        .replace(/\s+/g, " ");
+    const text = String(messages.games.memory.deck[game.settings.deck].text)
+        .replace(/\s+/g, " ");
+    const description = String(messages.games.memory.introduction.text)
+        .replace(/\s+/g, " ");
+    const privacy = String(messages.platform.privacy.text)
+        .replace(/\s+/g, " ");
+    let invitation = "";
+    game.invitation.links.forEach(link => {
+        invitation += `${link.player} ${link.url}\r\n`
+    });
+    const mail = Messages.customize("games.memory.invitation.mail",
+        title, text, description, invitation.trim(), privacy);
+    return mail.replace(/([\r\n])( +)/g, "$1");
+};
+
 const game = Reactive({
     get name() {
         return GAME_MEMORY;
@@ -120,25 +138,18 @@ const game = Reactive({
         },
         copy: {
             onClick(event) {
+                const unique = event.currentTarget.id.match(Composite.PATTERN_ELEMENT_ID)[3];
+                const text = unique ? game.invitation.links[unique.substring(1) -1].url
+                        : _create_invitation_text();
+                navigator.clipboard.writeText(text);
             }
         },
         send: {
             onClick(event) {
-                const title = String(messages.games.memory.deck[game.settings.deck].title)
-                    .replace(/\s+/g, " ");
-                const text = String(messages.games.memory.deck[game.settings.deck].text)
-                    .replace(/\s+/g, " ");
-                const description = String(messages.games.memory.introduction.text)
-                    .replace(/\s+/g, " ");
-                const privacy = String(messages.platform.privacy.text)
-                    .replace(/\s+/g, " ");
-                let invitation = "";
-                game.invitation.links.forEach(link => {
-                    invitation += `${link.player} ${link.url}\r\n`
-                });
-                const mail = Messages.customize("games.memory.invitation.mail",
-                    title, text, description, invitation.trim(), privacy);
-                alert(mail.replace(/([\r\n])( +)/g, "$1"));
+                const subject = encodeURIComponent(Messages.customize("platform.mail.title",
+                    messages.games.memory.title, messages.games.memory.invitation.title));
+                const body = encodeURIComponent(_create_invitation_text());
+                window.location.href = "mailto:?subject=" + subject + "&body=" + body;
             },
         },
         play: {

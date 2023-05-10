@@ -21,8 +21,8 @@
             {{link.item.player}}
           </td>
           <td>
-            <button id="link">
-              {{messages.games.memory.copy.title}}
+            <button id="copy#{{(link.index +1)}}">
+              {{messages.games.memory.copy.link.title}}
             </button>
             <button id="play">
               {{messages.games.memory.play.title}}
@@ -30,7 +30,9 @@
           </td>
         </tr>
       </table>
-      <p></p>
+      <p>
+        {{messages.platform.privacy.invitation.text}}
+      </p>
     </td>
   </tr>
   <tr>
