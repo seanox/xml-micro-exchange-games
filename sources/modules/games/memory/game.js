@@ -55,13 +55,18 @@ const game = Reactive({
                 for (let index = 0; index < game.settings.players.length; index++)
                     if (meta.length > 2 +index)
                         game.settings.players[index] = meta[2 +index];
+                if (meta.length > 7 && meta[6] && meta[7]) {
+                    game.view = VIEW_DESK;
+                    window.setTimeout(() => game.join(), 0);
+                }
             }
         }
 
-        utils.query.update([
-            game.name,
-            game.settings.deck,
-            game.settings.players]);
+        if (game.view !== VIEW_DESK)
+            utils.query.update([
+                game.name,
+                game.settings.deck,
+                game.settings.players]);
     },
     dispose() {
         const node = document.getElementById("game@games:" + game.name);
@@ -75,6 +80,23 @@ const game = Reactive({
         const template = document.createElement("template");
         template.innerHTML = Composite.load(resource).trim();
         return template.content.childNodes;
+    },
+    validate() {
+        // abuse to change the query with changes of the settings
+        // it was easier than implementing additional proxies and observers
+        // because the data is synchronized after validation (view -> model),
+        // this must be done with the next process step
+        window.setTimeout(() =>
+            utils.query.update([
+                game.name,
+                game.settings.deck,
+                game.settings.players]), 0);
+        return true;
+    },
+    abort: {
+        onClick(event) {
+            game.dispose();
+        }
     },
     introduction: {
         next: {
@@ -92,7 +114,7 @@ const game = Reactive({
         },
         decks: {
             onClick(event) {
-                game.settings.deck = event.currentTarget.id.replace(/^.*#/, "");
+                game.settings.deck = event.currentTarget.id.match(Composite.PATTERN_ELEMENT_ID)[3];
             }
         },
         back: {
@@ -139,7 +161,7 @@ const game = Reactive({
         copy: {
             onClick(event) {
                 const unique = event.currentTarget.id.match(Composite.PATTERN_ELEMENT_ID)[3];
-                const text = unique ? game.invitation.links[unique.substring(1) -1].url
+                const text = unique ? game.invitation.links[unique -1].url
                         : _create_invitation_text();
                 navigator.clipboard.writeText(text);
             }
@@ -154,25 +176,25 @@ const game = Reactive({
         },
         play: {
             onClick(event) {
+                game.view = VIEW_DESK;
+                const unique = event.currentTarget.id.match(Composite.PATTERN_ELEMENT_ID)[3];
+                utils.query.update([
+                    game.name,
+                    game.settings.deck,
+                    game.settings.players,
+                    unique,
+                    UNIQUE]);
+                window.setTimeout(() => game.join(), 0);
             }
         }
     },
-    validate() {
-        // abuse to change the query with changes of the settings
-        // it was easier than implementing additional proxies and observers
-        // because the data is synchronized after validation (view -> model),
-        // this must be done with the next process step
-        window.setTimeout(() =>
-            utils.query.update([
-                game.name,
-                game.settings.deck,
-                game.settings.players]), 0);
-        return true;
+    join() {
     },
-    abort: {
-        onClick(event) {
-            game.dispose();
-        }
+    wait() {
+    },
+    play() {
+    },
+    score() {
     }
 });
 

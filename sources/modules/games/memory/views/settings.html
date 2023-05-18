@@ -26,7 +26,7 @@
         <p>
           <label for="players:{{player.index}}">
             Alias {{player.index +1}}
-            {{(?#[players:/player.index/].validationMessage) or ''}}
+            {{(?#[players://player.index//].validationMessage) or ''}}
           </label>
           <input type="text" id="players:{{player.index}}" events="input change"
               maxlength="8" pattern="{{PATTERN_PLAYER_ALIAS}}" validate
