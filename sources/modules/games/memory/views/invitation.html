@@ -21,10 +21,10 @@
             {{link.item.player}}
           </td>
           <td>
-            <button id="copy#{{(link.index +1)}}">
+            <button id="copy#{{link.index +1}}" disabled="{{utils.security.clipboardAccess ? undefined : true}}">
               {{messages.games.memory.copy.link.title}}
             </button>
-            <button id="play">
+            <button id="play#{{link.index +1}}">
               {{messages.games.memory.play.title}}
             </button>
           </td>
@@ -32,6 +32,9 @@
       </table>
       <p>
         {{messages.platform.privacy.invitation.text}}
+      </p>
+      <p condition="{{not utils.security.clipboardAccess}}">
+        {{messages.games.memory.invitation.security}}
       </p>
     </td>
   </tr>
@@ -43,7 +46,7 @@
       <button id="back">
         {{messages.games.memory.settings.title}}
       </button>
-      <button id="copy">
+      <button id="copy" disabled="{{utils.security.clipboardAccess ? undefined : true}}">
         {{messages.games.memory.copy.title}}
       </button>
       <button id="send">

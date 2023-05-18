@@ -30,7 +30,7 @@ const query = {
         const hash = document.location.hash.substring(1);
         if (!hash.startsWith("/"))
             return;
-        return hash.split("/").slice(1);
+        return hash.split("/").slice(1).map(hash => hash.trim());
     },
     update(data) {
         const url = this.create(data);

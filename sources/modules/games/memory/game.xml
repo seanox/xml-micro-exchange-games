@@ -80,6 +80,9 @@
       ----
       {4}
     </label>
+    <label key="games.memory.invitation.security">
+      Leider erlaubt der Browser nicht den Zugriff auf die Zwischenablage.
+    </label>
     <label key="games.memory.invitation.title" value="Einladung"/>
     <label key="games.memory.play.title" value="Spielen"/>
     <label key="games.memory.score.title" value="Spielstand"/>
