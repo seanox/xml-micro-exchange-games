@@ -1,5 +1,6 @@
 // import of runtime extensions
 #import utils/query;
+#import utils/security;
 
 // I have not yet found a way to determine the modules dynamically.
 // The directory index would be a possibility, but that can be disabled and then
