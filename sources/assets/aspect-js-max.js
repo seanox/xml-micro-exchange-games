@@ -4,7 +4,7 @@
  * Diese Software unterliegt der Version 2 der Apache License.
  *
  * Seanox aspect-js, fullstack for single page applications
- * Copyright (C) 2023 Seanox Software Solutions
+ * Copyright (C) 2025 Seanox Software Solutions
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -22,53 +22,61 @@
  *     DESCRIPTION
  *     ----
  * General extension of the JavaScript API.
- *
- * @author  Seanox Software Solutions
- * @version 1.6.0 20230326
- */
-
-// Compliant takes over the task that the existing JavaScript API can be
-// manipulated in a controlled way. Controlled means that errors occur when
-// trying to overwrite existing objects and functions. Originally, the mechanism
-// was removed after loading the page, but the feature has proven to be
-// convenient for other modules and therefore remains.
-//
-// In the code, the method is used in an unconventional form.
-//
-//     compliant("Composite");
-//     compliant(null, window.Composite = {...});
-//     compliant("Object.prototype.ordinal");
-//     compliant(null, Object.prototype.ordinal = function() {...}
-//
-// This is only for the IDE so that syntax completion has a chance there. This
-// syntax will be simplified and corrected in the build process for the
-// releases.
-
-if (window.compliant !== undefined)
-	throw new Error("JavaScript incompatibility detected for: compliant");
-window.compliant = (context, payload) => {
-	if (context === null
-			|| context === undefined)
-		return payload;
-	if (new Function(`return typeof ${context}`)() !== "undefined")
-		throw new Error("JavaScript incompatibility detected for: " + context);
-	return eval(`${context} = payload`);
-};
-
-/**
- * Comparable to packages in other programming languages, namespaces can be used
- * for hierarchical structuring of components, resources and business logic.
- * Although packages are not a feature of JavaScript, they can be mapped at the
- * object level by concatenating objects into an object tree. Here, each level
- * of the object tree forms a namespace, which can also be considered a domain.
- *
- * As is typical for the identifiers of objects, namespaces also use letters,
- * numbers and underscores separated by a dot. As a special feature, arrays are
- * also supported. If a layer in the namespace uses an integer, this layer is
- * used as an array.
  */
 (() => {
 
+	"use strict";
+
+	/**
+	 * Compliant takes over the task that the existing JavaScript API can be
+	 * manipulated in a controlled way. Controlled means that errors occur when
+	 * trying to overwrite existing objects and functions. Originally, the
+	 * mechanism was removed after loading the page, but the feature has proven
+	 * to be convenient for other modules and therefore remains.
+	 *
+	 * In the code, the method is used in an unconventional form.
+	 *
+	 *     compliant("Composite");
+	 *     compliant(null, window.Composite = {...});
+	 *     compliant("Object.prototype.ordinal");
+	 *     compliant(null, Object.prototype.ordinal = function() {...}
+	 *
+	 * This is only for the IDE so that syntax completion has a chance there.
+	 * This syntax will be simplified and corrected in the build process for the
+	 * releases.
+	 *
+	 * @param {string|null} context Context of object or function to manipulate
+	 *     If null, only the payload is returned.
+	 * @param {*} payload Payload to assign to the context
+	 * @returns {*} Assigned payload
+	 * @throws {Error} If the compliant function or context is already exists
+	 */
+	if (window.compliant !== undefined)
+		throw new Error("JavaScript incompatibility detected for: compliant");
+	window.compliant = (context, payload) => {
+		if (context === null
+				|| context === undefined)
+			return payload;
+		if (new Function(`return typeof ${context}`)() !== "undefined")
+			throw new Error("JavaScript incompatibility detected for: " + context);
+		if (context.match(/^[a-zA-Z_$][a-zA-Z0-9_$]*$/))
+			context = `window["${context}"]`;
+		return eval(`${context} = payload`);
+	};
+
+	/**
+	 * Comparable to packages in other programming languages, namespaces can be
+	 * used for hierarchical structuring of components, resources and business
+	 * logic. Although packages are not a feature of JavaScript, they can be
+	 * mapped at the object level by concatenating objects into an object tree.
+	 * Here, each level of the object tree forms a namespace, which can also be
+	 * considered a domain.
+	 *
+	 * As is typical for the identifiers of objects, namespaces so use word
+	 * characters, means letters, numbers and underscores separated by a dot. As
+	 * a special feature, arrays are also supported. If a layer in the namespace
+	 * uses an integer, this layer is used as an array.
+	 */
 	compliant("Namespace", {
 
 		/** Pattern for the namespace separator */
@@ -94,9 +102,9 @@ window.compliant = (context, payload) => {
 		 *     Namespace.use(object);
 		 *     Namespace.use(object, ...string|number);
 		 *
-		 * @param  levels of the namespace
-		 * @return the created or already existing object(-level)
-		 * @throws An error occurs in case of invalid data types or syntax
+		 * @param {...(string|number|object)} levels Levels of the namespace
+		 * @returns {object} The created or already existing object (level)
+		 * @throws {Error} In case of invalid data types or syntax
 		 */
 		use(...levels) {
 
@@ -131,7 +139,7 @@ window.compliant = (context, payload) => {
 						&& namespace === null) {
 					namespace = _populate(namespace, level);
 					if (namespace !== undefined
-							&& !(namespace instanceof Element))
+						    && !(namespace instanceof Element))
 						return;
 					namespace = window;
 				}
@@ -145,7 +153,7 @@ window.compliant = (context, payload) => {
 						|| item === null
 						|| item instanceof Element)
 					if (index < array.length -1
-							&& array[index +1].match(/^\d+$/))
+						    && array[index +1].match(/^\d+$/))
 						namespace[level] = [];
 					else namespace[level] = {};
 				namespace = _populate(namespace, level);
@@ -167,10 +175,10 @@ window.compliant = (context, payload) => {
 		 *     Namespace.create(object, value);
 		 *     Namespace.create(object, ...string|number, value);
 		 *
-		 * @param  levels of the namespace
-		 * @param  value to initialize/set
-		 * @return the created or already existing object(-level)
-		 * @throws An error occurs in case of invalid data types or syntax
+		 * @param {...(string|number|object)} levels Levels of the namespace
+		 * @param {*} value Value to initialize/set
+		 * @returns {object} The created or already existing object (level)
+		 * @throws {Error} In case of invalid data types or syntax
 		 */
 		create(...levels) {
 			if (levels.length < 2)
@@ -196,9 +204,9 @@ window.compliant = (context, payload) => {
 		 *     Namespace.lookup(object);
 		 *     Namespace.lookup(object, ...string|number);
 		 *
-		 * @param  levels of the namespace
-		 * @return the determined object(-level)
-		 * @throws An error occurs in case of invalid data types or syntax
+		 * @param {...(string|number|object)} levels Levels of the namespace
+		 * @returns {object|undefined} The determined object(-level)
+		 * @throws {Error} In case of invalid data types or syntax
 		 */
 		lookup(...levels) {
 
@@ -266,9 +274,8 @@ window.compliant = (context, payload) => {
 		 *     Namespace.exists(object);
 		 *     Namespace.exists(object, ...string|number);
 		 *
-		 * @param  levels of the namespace
-		 * @return true if the namespace exists
-		 * @throws An error occurs in case of invalid levels or syntax
+		 * @param {...(string|number|object)} levels Levels of the namespace
+		 * @returns {boolean} True if the namespace exists
 		 */
 		exists(...levels) {
 			if (levels.length < 1)
@@ -309,66 +316,66 @@ window.compliant = (context, payload) => {
 			throw error;
 		}
 	}
-})();
 
-/**
- * Enhancement of the JavaScript API
- * Modifies the method to support node and nodes as NodeList and Array.
- * If the option exclusive is used, existing children will be removed first.
- * @param node      node(s)
- * @param exclusive existing children will be removed first
- */
-(() => {
+	/**
+	 * Enhancement of the JavaScript API
+	 * Modifies the method to support node and nodes as NodeList and Array. If
+	 * the option exclusive is used, existing children will be removed first.
+	 * @param {(Node|NodeList|Array)} node Node(s) to be modified
+	 * @param {boolean} [exclusive=false] True, removes existing children
+	 */
 	const _appendChild = Element.prototype.appendChild;
 	Element.prototype.appendChild = function(node, exclusive) {
 		if (exclusive)
 			this.innerHTML = "";
-		if (node instanceof Node) {
-			_appendChild.call(this, node);
-		} else if (Array.isArray(node)
+		if (node instanceof Node)
+			return _appendChild.call(this, node);
+		if (Array.isArray(node)
 				|| node instanceof NodeList
 				|| (Symbol && Symbol.iterator
 						&& node && typeof node[Symbol.iterator])) {
 			node = Array.from(node);
 			for (let loop = 0; loop < node.length; loop++)
 				_appendChild.call(this, node[loop]);
-		} else _appendChild.call(this, node);
-   };
-})();
+			return node;
+		}
+		return _appendChild.call(this, node);
+	};
 
-/**
- * Enhancement of the JavaScript API
- * Adds a static function to create an alphanumeric unique (U)UID with fixed size.
- * The quality of the ID is dependent of the length.
- * @param size optional, default is 16
- */
-compliant("Math.unique", (size) => {
-	size = size || 16;
-	if (size < 0)
-		size = 16;
-	let unique = "";
-	for (let loop = 0; loop < size; loop++) {
-		const random = Math.floor(Math.random() * Math.floor(26));
-		if ((Math.floor(Math.random() *Math.floor(26))) % 2 === 0)
-			unique += String(random % 10);
-		else unique += String.fromCharCode(65 +random);
-	}
-	return unique;
-});
+	/**
+	 * Enhancement of the JavaScript API
+	 * Adds a static function to create an alphanumeric unique (U)UID with fixed
+	 * size. The quality of the ID is dependent of the length.
+	 * @param {number} [size=16] Optional size of the unique ID
+	 * @returns {string} The generated alphanumeric unique ID
+	 */
+	compliant("Math.unique", (size) => {
+		size = size || 16;
+		if (size < 0)
+			size = 16;
+		let unique = "";
+		for (let loop = 0; loop < size; loop++) {
+			const random = Math.floor(Math.random() * Math.floor(26));
+			if ((Math.floor(Math.random() *Math.floor(26))) % 2 === 0)
+				unique += String(random % 10);
+			else unique += String.fromCharCode(65 +random);
+		}
+		return unique;
+	});
 
-/**
- * Enhancement of the JavaScript API
- * Adds a static function to create a time based alphanumeric serial that is
- * chronologically sortable as text and contains the time and a counter if
- * serial are created at the same time.
- */
-(() => {
+	/**
+	 * Enhancement of the JavaScript API
+	 * Adds a static function to create a time based alphanumeric serial that is
+	 * chronologically sortable as text and contains the time and a counter if
+	 * serial are created at the same time.
+	 * @returns {string} The generated time-based alphanumeric serial
+	 */
 	compliant("Math.serial", () =>
 		_serial.toString());
 	const _offset = -946684800000;
-	const _serial = {timing:new Date().getTime() + _offset, number:0,
+	const _serial = {timing:Date.now() + _offset, number:0,
 		toString() {
-			const timing = new Date().getTime() + _offset;
+			const timing = Date.now() + _offset;
 			this.number = this.timing === timing ? this.number +1 : 0;
 			this.timing = timing;
 			const serial = this.timing.toString(36);
@@ -376,173 +383,186 @@ compliant("Math.unique", (size) => {
 			return (serial.length.toString(36) + serial
 				+ number.length.toString(36) + number).toUpperCase();
 		}};
+
+	/**
+	 * Enhancement of the JavaScript API
+	 * Creates a literal pattern for the specified text. Metacharacters or escape
+	 * sequences in the text thus lose their meaning.
+	 * @param {string} text Text to be literalized
+	 * @returns {string|null} Literal pattern for the specified text, or null if
+	 *     the text is not usable
+	 */
+	compliant("RegExp.quote", (text) => {
+		if (!Object.usable(text))
+			return null;
+		return String(text).replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&");
+	});
+
+	/**
+	 * Enhancement of the JavaScript API
+	 * Adds a capitalize function to the String objects.
+	 * @returns {string} String with the first character capitalized
+	 */
+	compliant("String.prototype.capitalize", function() {
+		if (this.length <= 0)
+			return this;
+		return this.charAt(0).toUpperCase() + this.slice(1);
+	});
+
+	/**
+	 * Enhancement of the JavaScript API
+	 * Adds an uncapitalize function to the String objects.
+	 * @returns {string} The string with the first character uncapitalized
+	 */
+	compliant("String.prototype.uncapitalize", function() {
+		if (this.length <= 0)
+			return this;
+		return this.charAt(0).toLowerCase() + this.slice(1);
+	});
+
+	/**
+	 * Enhancement of the JavaScript API
+	 * Adds a function for encoding the string objects in hexadecimal code.
+	 * @returns {string} The hexadecimal encoded string
+	 */
+	compliant("String.prototype.encodeHex", function() {
+		let result = "";
+		for (let loop = 0; loop < this.length; loop++) {
+			let digit = Number(this.charCodeAt(loop)).toString(16).toUpperCase();
+			while (digit.length < 2)
+				digit = "0" + digit;
+			result += digit;
+		}
+		return "0x" + result;
+	});
+
+	/**
+	 * Enhancement of the JavaScript API
+	 * Adds a function for decoding hexadecimal code to the string objects.
+	 * @returns {string} The decoded string
+	 */
+	compliant("String.prototype.decodeHex", function() {
+		let text = this;
+		if (text.match(/^0x/))
+			text = text.substring(2);
+		let result = "";
+		for (let loop = 0; loop < text.length; loop += 2)
+			result += String.fromCharCode(parseInt(text.substring(loop, 2), 16));
+		return result;
+	});
+
+	/**
+	 * Enhancement of the JavaScript API
+	 * Adds a method for encoding Base64.
+	 * @returns {string} The Base64 encoded string.
+	 * @throws {Error} In case of a malformed character sequence.
+	 */
+	compliant("String.prototype.encodeBase64", function() {
+		try {
+			return btoa(encodeURIComponent(this).replace(/%([0-9A-F]{2})/g,
+				(match, code) =>
+					String.fromCharCode("0x" + code)));
+		} catch (error) {
+			throw new Error("Malformed character sequence");
+		}
+	});
+
+	/**
+	 * Enhancement of the JavaScript API
+	 * Adds a method for decoding Base64.
+	 * @returns {string} The decoded string.
+	 * @throws {Error} In case of a malformed character sequence
+	 */
+	compliant("String.prototype.decodeBase64", function() {
+		try {
+			return decodeURIComponent(atob(this).split("").map((code) =>
+				"%" + ("00" + code.charCodeAt(0).toString(16)).slice(-2)).join(""));
+		} catch (error) {
+			throw new Error("Malformed character sequence");
+		}
+	});
+
+	/**
+	 * Enhancement of the JavaScript API
+	 * Adds an HTML encode function to the String objects.
+	 * @returns {string} The HTML encoded string
+	 */
+	compliant("String.prototype.encodeHtml", function() {
+		const element = document.createElement("div");
+		element.textContent = this;
+		return element.innerHTML;
+	});
+
+	/**
+	 * Enhancement of the JavaScript API
+	 * Adds a method for calculating a hash value.
+	 * @returns {string} The calculated hash value
+	 */
+	compliant("String.prototype.hashCode", function() {
+		let hash = 0;
+		let hops = 0;
+		for (let loop = 0; loop < this.length; loop++) {
+			const temp = 31 *hash +this.charCodeAt(loop);
+			if (!Number.isSafeInteger(temp)) {
+				hops++;
+				hash = Number.MAX_SAFE_INTEGER -hash +this.charCodeAt(loop);
+			} else hash = temp;
+		}
+		hash = Math.abs(hash).toString(36);
+		hash = hash.length.toString(36) + hash;
+		hash = (hash + hops.toString(36)).toUpperCase();
+		return hash;
+	});
+
+	/**
+	 * Enhancement of the JavaScript API
+	 * Adds a decoding of slash sequences (control characters).
+	 * @returns {string} The decoded string with processed control characters
+	 */
+	compliant("String.prototype.unescape", function() {
+		let text = this
+			.replace(/\r/g, "\\r")
+			.replace(/\n/g, "\\n")
+			.replace(/^(["'])/, "\$1")
+			.replace(/([^\\])((?:\\{2})*)(?=["'])/g, "$1$2\\");
+		return eval(`"${text}"`);
+	});
+
+	/**
+	 * Enhancement of the JavaScript API
+	 * Adds a property to get the UID for the window instance.
+	 * @returns {string} The unique identifier (UID) for the window instance
+	 */
+	compliant("window.serial");
+	Object.defineProperty(window, "serial", {
+		value: Math.serial()
+	});
+
+	/**
+	 * Enhancement of the JavaScript API
+	 * Adds a property to get the context path. The context path is a part of
+	 * the request URI and can be compared with the current working directory.
+	 * @returns {string} The context path of the request URI.
+	 */
+	compliant("window.location.contextPath");
+	Object.defineProperty(window.location, "contextPath", {
+		value: ((location) =>
+			location.substring(0, location.lastIndexOf("/")) + "/"
+		)(window.location.pathname || "/")
+	});
+
+	/**
+	 * Enhancement of the JavaScript API
+	 * Adds a method to combine paths to a new one. The result will always start
+	 * with a slash but ends without it.
+	 * @param {...string} paths Paths to be combined
+	 * @returns {string} The combined path.
+	 */
+	compliant("window.location.combine", (...paths) =>
+		"/" + paths.join("/")
+			.replace(/[\/\\]+/g, "/")
+			.replace(/(^\/+)|(\/+$)/g, ""));
 })();
-
-/**
- * Enhancement of the JavaScript API
- * Creates a literal pattern for the specified text.
- * Metacharacters or escape sequences in the text thus lose their meaning.
- * @param  text text to be literalized
- * @return a literal pattern for the specified text
- */
-compliant("RegExp.quote", (text) => {
-	if (!Object.usable(text))
-		return null;
-	return String(text).replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&");
-});
-
-/**
- * Enhancement of the JavaScript API
- * Adds a capitalize function to the String objects.
- */
-compliant("String.prototype.capitalize", function() {
-	if (this.length <= 0)
-		return this;
-	return this.charAt(0).toUpperCase() + this.slice(1);
-});
-
-/**
- * Enhancement of the JavaScript API
- * Adds an uncapitalize function to the String objects.
- */
-compliant("String.prototype.uncapitalize", function() {
-	if (this.length <= 0)
-		return this;
-	return this.charAt(0).toLowerCase() + this.slice(1);
-});
-
-/**
- * Enhancement of the JavaScript API
- * Adds a function for encoding the string objects in hexadecimal code.
- */
-compliant("String.prototype.encodeHex", function() {
-	let result = "";
-	for (let loop = 0; loop < this.length; loop++) {
-		let digit = Number(this.charCodeAt(loop)).toString(16).toUpperCase();
-		while (digit.length < 2)
-			digit = "0" + digit;
-		result += digit;
-	}
-	return "0x" + result;
-});
-
-/**
- * Enhancement of the JavaScript API
- * Adds a function for decoding hexadecimal code to the string objects.
- */
-compliant("String.prototype.decodeHex", function() {
-	let text = this;
-	if (text.match(/^0x/))
-		text = text.substring(2);
-	let result = "";
-	for (let loop = 0; loop < text.length; loop += 2)
-		result += String.fromCharCode(parseInt(text.substring(loop, 2), 16));
-	return result;
-});
-
-/**
- * Enhancement of the JavaScript API
- * Adds a method for encoding Base64.
- */
-compliant("String.prototype.encodeBase64", function() {
-	try {
-		return btoa(encodeURIComponent(this).replace(/%([0-9A-F]{2})/g,
-			(match, code) =>
-				String.fromCharCode("0x" + code)));
-	} catch (error) {
-		throw new Error("Malformed character sequence");
-	}
-});
-
-/**
- * Enhancement of the JavaScript API
- * Adds a method for decoding Base64.
- */
-compliant("String.prototype.decodeBase64", function() {
-	try {
-		return decodeURIComponent(atob(this).split("").map((code) =>
-			"%" + ("00" + code.charCodeAt(0).toString(16)).slice(-2)).join(""));
-	} catch (error) {
-		throw new Error("Malformed character sequence");
-	}
-});
-
-/**
- * Enhancement of the JavaScript API
- * Adds an HTML encode function to the String objects.
- */
-compliant("String.prototype.encodeHtml", function() {
-	const element = document.createElement("div");
-	element.textContent = this;
-	return element.innerHTML;
-});
-
-/**
- * Enhancement of the JavaScript API
- * Adds a method for calculating a hash value.
- */
-compliant("String.prototype.hashCode", function() {
-	if (this.hash !== undefined
-			&& this.hash !== 0)
-		return this.hash;
-	this.hash = 0;
-	let hops = 0;
-	for (let loop = 0; loop < this.length; loop++) {
-		const temp = 31 *this.hash +this.charCodeAt(loop);
-		if (!Number.isSafeInteger(temp)) {
-			hops++;
-			this.hash = Number.MAX_SAFE_INTEGER -this.hash +this.charCodeAt(loop);
-		} else this.hash = temp;
-	}
-	this.hash = Math.abs(this.hash).toString(36);
-	this.hash = this.hash.length.toString(36) + this.hash;
-	this.hash = (this.hash + hops.toString(36)).toUpperCase();
-	return this.hash;
-});
-
-/**
- * Enhancement of the JavaScript API
- * Adds a decoding of slash sequences (control characters).
- */
-compliant("String.prototype.unescape", function() {
-	let text = this
-		.replace(/\r/g, "\\r")
-		.replace(/\n/g, "\\n")
-		.replace(/^(["'])/, "\$1")
-		.replace(/([^\\])((?:\\{2})*)(?=["'])/g, "$1$2\\");
-	return eval(`"${text}"`);
-});
-
-/**
- * Enhancement of the JavaScript API
- * Adds a property to get the UID for the window instance.
- */
-compliant("window.serial");
-Object.defineProperty(window, "serial", {
-	value: Math.serial()
-});
-
-/**
- * Enhancement of the JavaScript API
- * Adds a property to get the context path.
- * The context path is a part of the request URI and can be compared with the
- * current working directory.
- */
-compliant("window.location.pathcontext");
-Object.defineProperty(window.location, "pathcontext", {
-	value: window.location.pathname.replace(/\/([^\/]*\.[^\/]*){0,}$/g, "") || "/"
-});
-
-/**
- * Enhancement of the JavaScript API
- * Adds a method to combine paths to a new one.
- * The result will always start with a slash but ends without it.
- */
-compliant("window.location.combine", (...paths) =>
-	"/" + paths.join("/")
-		.replace(/[\/\\]+/g, "/")
-		.replace(/(^\/+)|(\/+$)/g, ""));
-
 /**
  * DataSource is a NoSQL approach to data storage based on XML data in
  * combination with multilingual data separation, optional aggregation and
@@ -561,14 +581,13 @@ compliant("window.location.combine", (...paths) =>
  *
  * The data is queried with XPath, the result can be concatenated and
  * aggregated and the result can be transformed with XSLT.
- *
- * @author  Seanox Software Solutions
- * @version 1.6.0 20230317
  */
 (() => {
 
+	"use strict";
+
 	/** Path of the DataSource for: data (sub-directory of work path) */
-	const DATA = window.location.combine(window.location.pathcontext, "/data");
+	const DATA = window.location.combine(window.location.contextPath, "/data");
 
 	/**
 	 * Pattern for a DataSource locator, based on the URL syntax but only
@@ -597,8 +616,10 @@ compliant("window.location.combine", (...paths) =>
 		 * Changes the localization of the DataSource.
 		 * Only locales from locales.xml can be used, other values cause an
 		 * error.
-		 * @param  locale
-		 * @throws Error in the case of invalid locales
+		 * @param {string} locale Locale to be set
+		 * @throws {TypeError} In case of invalid locale type
+		 * @throws {Error} In case of missing DataSource data or locales
+		 * @throws {Error} In case of invalid locales
 		 */
 		localize(locale) {
 
@@ -620,12 +641,15 @@ compliant("window.location.combine", (...paths) =>
 		/**
 		 * Transforms an XMLDocument based on a passed stylesheet.
 		 * The data and the stylesheet can be passed as Locator, XMLDocument an
-		 * in mix. The result as a DocumentFragment. Optionally, a meta object
+		 * in mix. The result as a DocumentFragment. Optionally, a meta-object
 		 * or a map with parameters for the XSLTProcessor can be passed.
-		 * @param  xml   locator or XMLDocument
-		 * @param  style locator or XMLDocument
-		 * @param  meta  optional parameters for the XSLTProcessor
-		 * @return the transformation result as a DocumentFragment
+		 * @param {string|XMLDocument} xml Locator or XMLDocument to be
+		 *     transformed
+		 * @param {string|XMLDocument} style Locator or XMLDocument stylesheet
+		 * @param {Object} [meta] Optional parameters for the XSLTProcessor
+		 * @returns {DocumentFragment} The transformation result as a
+		 *     DocumentFragment
+		 @throws {TypeError} In case of invalid xml document and/or stylesheet
 		 */
 		transform(xml, style, meta) {
 
@@ -665,7 +689,7 @@ compliant("window.location.combine", (...paths) =>
 				if (escape || (node.getAttribute("escape") || "on").match(/^yes|on|true|1$/i)) {
 					const content = node.innerHTML;
 					if (content.indexOf("<") < 0
-							&& content.indexOf(">") < 0)
+						    && content.indexOf(">") < 0)
 						node.innerHTML = node.textContent;
 				}
 				node.removeAttribute("escape");
@@ -696,19 +720,18 @@ compliant("window.location.combine", (...paths) =>
 		},
 
 		/**
-		 * Fetch the data to a locator as XMLDocument.
-		 * Optionally the data can be transformed via XSLT, for which a meta
-		 * object or map with parameters for the XSLTProcessor can be passed.
-		 * When using the transformation, the return type changes to a
-		 * DocumentFragment.
-		 * @param  locator   locator
-		 * @param  transform locator of the transformation style
-		 *     With the boolean true, the style is derived from the locator by
+		 * Fetch the data to a locator as XMLDocument. Optionally the data can
+		 * be transformed via XSLT, for which a meta-object or map with
+		 * parameters for the XSLTProcessor can be passed. When using the
+		 * transformation, the return type changes to a DocumentFragment.
+		 * @param {string} locator Locator to fetch data for.
+		 * @param {string|boolean} transform Locator of the transformation
+		 *     style. If boolean true, the style is derived from the locator
 		 *     using the file extension xslt.
-		 * @param  meta      optional parameters for the XSLTProcessor
-		 * @return the fetched data as XMLDocument or as DocumentFragment, if
-		 *     the transformation is used
-		 * @throws Error in the case of invalid arguments
+		 * @param {Object} [meta] Optional parameters for the XSLTProcessor.
+		 * @returns {XMLDocument|DocumentFragment} The fetched data as an
+		 *     XMLDocument or a DocumentFragment if transformation is used
+		 * @throws {Error} In case of invalid arguments
 		 */
 		fetch(locator, transform, meta) {
 
@@ -760,13 +783,17 @@ compliant("window.location.combine", (...paths) =>
 
 		/**
 		 * Collects and concatenates multiple XML files in a new XMLDocument.
+		 *
 		 * The method has the following various signatures:
 		 *     DataSource.collect(locator, ...);
 		 *     DataSource.collect(collector, [locators]);
-		 * @param  collector name of the collector element in the XMLDocument
-		 * @param  locators  Array or VarArg with locators
-		 * @return the created XMLDocument, otherwise null
-		 * @throws Error in the case of invalid arguments
+		 *
+		 * @param {string} collector Name of the collector element in the
+		 *     XMLDocument
+		 * @param {Array|string} locators Array or VarArg with locators
+		 * @returns {XMLDocument|null} The created XMLDocument, otherwise null
+		 * @throws {TypeError} In case of invalid arguments, collector,
+		 *     collection entry
 		 */
 		collect(...variants) {
 
@@ -809,6 +836,7 @@ compliant("window.location.combine", (...paths) =>
 	/**
 	 * Enhancement of the JavaScript API
 	 * Adds a method for cloning a XMLDocument.
+	 * @returns {XMLDocument} The cloned XMLDocument
 	 */
 	compliant("XMLDocument.prototype.clone", function() {
 		const clone = this.implementation.createDocument(null, null);
@@ -828,21 +856,16 @@ compliant("window.location.combine", (...paths) =>
 		value: [], enumerable: true
 	});
 
-	let locale = [];
-	locale = locale.concat(navigator.language);
-	if (navigator.languages !== undefined)
-		locale = locale.concat(navigator.languages);
-	Array.from(locale).forEach((language) => {
-		language = language.match(/^[a-z]+/i, "");
-		if (language && !locale.includes(language[0]))
-			locale.push(language[0]);
+	let locales = [];
+	[navigator.language].concat(navigator.languages || []).forEach(language => {
+		language = language.toLowerCase().trim();
+		locales.push(language);
+		language = language.replace(/-.*$/, "");
+		if (!locales.includes(language))
+			locales.push(language);
 	});
-	locale = locale.map((language) =>
-		language.trim().toLowerCase());
-	locale = locale.filter((item, index) =>
-		locale.indexOf(item) === index);
 
-	if (locale.length <= 0)
+	if (locales.length <= 0)
 		throw new Error("Locale not available");
 
 	const request = new XMLHttpRequest();
@@ -879,12 +902,11 @@ compliant("window.location.combine", (...paths) =>
 	if (DataSource.locales.length <= 0)
 		throw new Error("Locale not available");
 
-	locale.push(DataSource.locales[0]);
-	locale = locale.filter(function(locale) {
-		return DataSource.locales.includes(locale);
-	});
+	locales.push(DataSource.locales[0]);
+	locales = locales.filter((locale) =>
+		DataSource.locales.includes(locale));
 
-	DataSource.locales.selection = locale.length ? locale[0] : DataSource.locales[0];
+	DataSource.locales.selection = locales.length ? locales[0] : DataSource.locales[0];
 })();
 
 /**
@@ -894,9 +916,6 @@ compliant("window.location.combine", (...paths) =>
  * JavaScript scripts. Because in the end everything is based on a simple eval
  * command, it was important to isolate the execution of the scripts so that
  * internal methods and constants cannot be accessed unintentionally.
- *
- * @author  Seanox Software Solutions
- * @version 1.6.0 20230408
  */
 (() => {
 
@@ -963,19 +982,21 @@ compliant("window.location.combine", (...paths) =>
 		 *     #use namespaces to be created
 		 *
 		 *
-		 *
 		 *     (?...)
-		 *
+		 *     ----
 		 * Tolerant expressions are also a macro, although with different
 		 * syntax. The logic enclosed in the parenthesis with question marks is
 		 * executed fault-tolerantly. In case of an error the logic corresponds
 		 * to the value false without causing an error itself, except for syntax
 		 * errors.
 		 *
-		 * @param  script
-		 * @return the return value from the script
+		 * @param {string} script
+		 * @returns {*} the return value from the script
 		 */
 		eval(script) {
+
+			if (typeof script !== "string")
+				throw new TypeError("Invalid data type");
 
 			// Performance is important here.
 			// The implementation parses and replaces macros in one pass.
@@ -1021,7 +1042,7 @@ compliant("window.location.combine", (...paths) =>
 
 				if (pattern) {
 					if (pattern === script.substring(cursor, cursor + pattern.length)
-							|| (pattern === "\n" && digit === "\r"))
+						    || (pattern === "\n" && digit === "\r"))
 						pattern = null;
 					continue;
 				}
@@ -1030,22 +1051,22 @@ compliant("window.location.combine", (...paths) =>
 					case "/":
 						digit = script.charAt(cursor +1);
 						if (digit === "/")
-							pattern = "\n";
+						    pattern = "\n";
 						if (digit === "*")
-							pattern = "*/";
+						    pattern = "*/";
 						continue;
 
 					case "(":
 						if (brackets > 0)
-							brackets++;
+						    brackets++;
 						else brackets = -1;
 						continue;
 
 					case ")":
 						if (brackets <= 0)
-							continue;
+						    continue;
 						if (--brackets > 0)
-							continue;
+						    continue;
 						let macro = ")";
 						script = script.substring(0, cursor) + macro + script.substring(cursor);
 						cursor += macro.length;
@@ -1061,24 +1082,24 @@ compliant("window.location.combine", (...paths) =>
 						let string = script.substring(cursor -1, cursor +10);
 						let match = string.match(/(^|\W)(#(?:import|export|module|use))\s/);
 						if (match) {
-							let macro = match[2];
-							for (let offset = cursor +macro.length; offset <= script.length; offset++) {
-								string = script.charAt(offset);
-								if (!string.match(/[;\r\n]/)
+						    let macro = match[2];
+						    for (let offset = cursor +macro.length; offset <= script.length; offset++) {
+						        string = script.charAt(offset);
+						        if (!string.match(/[;\r\n]/)
 										&& offset < script.length)
-									continue;
+						            continue;
 
-								let parameters = script.substring(cursor +macro.length, offset).trim();
+						        let parameters = script.substring(cursor +macro.length, offset).trim();
 
-								switch (macro) {
-									case "#import":
+						        switch (macro) {
+						            case "#import":
 										if (!parameters.match(/^(\w+(\/\w+)*)(\s+(\w+(\/\w+)*))*$/))
 											throw new Error(("Invalid macro: #import " + parameters).trim());
 										const imports = parameters.split(/\s+/).map(entry => "\"" + entry + "\"");
 										macro = "_import(...[" + imports.join(",") + "])";
 										break;
 
-									case "#export":
+						            case "#export":
 										const exports = [];
 										const pattern = /^([_a-z]\w*)(?:@((?:[_a-z]\w*)(?:\.[_a-z]\w*)*))?$/i;
 										parameters.split(/\s+/).forEach(entry => {
@@ -1093,26 +1114,26 @@ compliant("window.location.combine", (...paths) =>
 										macro = "_export(...[" + exports.join(",") + "])";
 										break;
 
-									case "#module":
+						            case "#module":
 										macro = parameters.replace(/\\/g, "\\\\")
 											.replace(/`/g, "\\`").trim();
 										if (macro)
 											macro = "console.debug(`Module: " + macro + "`)";
 										break;
 
-									case "#use":
+						            case "#use":
 										if (!parameters.match(/^([_a-z]\w*)(\.[_a-z]\w*)*(\s+([_a-z]\w*)(\.[_a-z]\w*)*)*$/i))
 											throw new Error(("Invalid macro: #use " + parameters).trim());
 										const uses = parameters.split(/\s+/).map(entry => "\"" + entry + "\"");
 										macro = "_use(...[" + uses.join(",") + "])";
 										break;
-								}
+						        }
 
-								script = script.substring(0, cursor -1) + (match[1] || "")
-									+ macro + script.substring(offset);
-								cursor += macro.length;
-								break;
-							}
+						        script = script.substring(0, cursor -1) + (match[1] || "")
+						            + macro + script.substring(offset);
+						        cursor += macro.length;
+						        break;
+						    }
 						}
 						continue;
 
@@ -1127,11 +1148,15 @@ compliant("window.location.combine", (...paths) =>
 		/**
 		 * Executes a script isolated in this context, so that no unwanted
 		 * access to internals is possible.
-		 * @param  script
-		 * @return return value of the script, if available
+		 * @param {string} script
+		 * @returns {*} return value of the script, if available
 		 */
 		run(script) {
-			if (script.trim())
+			if (typeof script !== "string")
+				throw new TypeError("Invalid data type");
+			if (!script.trim())
+				return;
+			with (Composite.render.context)
 				return eval(script);
 		}
 	});
@@ -1187,11 +1212,10 @@ compliant("window.location.combine", (...paths) =>
  * complete markup as free text, as well as in all attributes. Exceptions are
  * the HTML elements STYLE and SCRIPT whose content is not supported by the
  * expression language.
- *
- * @author  Seanox Software Solutions
- * @version 1.6.0 20230330
  */
 (() => {
+
+	"use strict";
 
 	compliant("Expression", {
 
@@ -1201,12 +1225,15 @@ compliant("window.location.combine", (...paths) =>
 		 * optionally. The serial is an alias for caching compiled expressions.
 		 * Without, the expressions are always compiled. The function uses
 		 * variable parameters and has the following signatures:
+		 *
 		 *     function(expression)
 		 *     function(serial, expression)
-		 * @param  serial
-		 * @param  expression
-		 * @return the return value of the interpreted expression or an error if
-		 *     an error or error has occurred
+		 *
+		 * @param {string} [serial] Optional serial for caching expressions
+		 * @param {string} expression Expression to be interpreted.
+		 * @returns {*} The return value of the interpreted expression, or an
+		 *     error if an error has occurred
+		 * @throws {Error} In case of invalid data types or syntax.
 		 */
 		eval(...variants) {
 
@@ -1230,7 +1257,7 @@ compliant("window.location.combine", (...paths) =>
 			try {return Scripting.run(script);
 			} catch (error) {
 				console.error(error.message + "\n\t" + script);
-				return error.message + " in " + script;
+				return new Error(error.message + " in " + script);
 			}
 		}
 	});
@@ -1257,9 +1284,11 @@ compliant("window.location.combine", (...paths) =>
 	/**
 	 * Analyzes and finds the components of an expression and creates a
 	 * JavaScript from them. Created scripts are cached a reused as needed.
-	 * @param  expression
-	 * @param  depth
-	 * @return the created JavaScript
+	 * @param {string} expression Expression to analyze
+	 * @param {number} [depth=0] Depth of the analysis
+	 * @param {Array} [patches=[]] Patches to apply
+	 * @returns {string} The created JavaScript
+	 * @throws {Error} In case of an error in the expression structure
 	 */
 	const _parse = (type, expression, patches = []) => {
 
@@ -1287,15 +1316,22 @@ compliant("window.location.combine", (...paths) =>
 				if (!structure.match(/^(\r(\d+)\n)*$/))
 					throw Error("Error in the expression structure\n\t" + expression);
 
+				const mixed = !expression.startsWith("{{")
+						|| !expression.endsWith("}}")
+						|| expression.substring(2).includes("{{")
+						|| expression.substring(0, expression.length -2).includes("}}");
+
 				// placeholders must be filled, since they were created
 				// recursively, they do not have to be filled recursively
 				structure = structure.replace(/(?:\r(\d+)\n)/g,
-					(match, placeholder) => "\r" + patches[placeholder] + "\n");
+					(match, placeholder) => mixed
+						? "\r(" + patches[placeholder] + ")\n"
+						: "\r" + patches[placeholder] + "\n");
 
 				// masked quotation marks will be restored.
-				structure = structure.replaceAll("\r\\u0022\n", '\\"');
-				structure = structure.replaceAll("\r\\u0027\n", "\\'");
-				structure = structure.replaceAll("\r\\u0060\n", "\\`");
+				structure = structure.replace(/\r\\u0022\n/g, '\\"');
+				structure = structure.replace(/\r\\u0027\n/g, "\\'");
+				structure = structure.replace(/\r\\u0060\n/g, "\\`");
 
 				// splices still need to be made scriptable
 				structure = structure.replace(/(\n\r)+/g, " + ");
@@ -1335,7 +1371,7 @@ compliant("window.location.combine", (...paths) =>
 				// logic and text. If the literals are replaced by numeric
 				// placeholders, only logic remains. Important is a flexible
 				// processing, because the order of ', " and ` is not defined.
-				expression = expression.replace(/((['\"\`]).*?\2)/gs,
+				expression = expression.replace(/((['\"\`])[.\s\S]*?\2)/g,
 					(match, literal) => _parse(TYPE_LITERAL, literal, patches));
 
 				// without literals, tabs have no relevance and can be replaced
@@ -1361,8 +1397,9 @@ compliant("window.location.combine", (...paths) =>
 
 				// element expressions are translated into JavaScript
 				//
+				//     #element -> document.getElementById(element)
 				//     #[element] -> document.getElementById(element)
-				//     #element   -> document.getElementById(element)
+				//     #[element//expression//] -> document.getElementById(element + expression)
 				//
 				// The version with square brackets is for more complex element
 				// IDs that do not follow the JavaScript syntax for variables.
@@ -1372,6 +1409,7 @@ compliant("window.location.combine", (...paths) =>
 				// not be misinterpreted.
 				expression = expression.replace(/#\[([^\[\]]*)\]/g,
 					(match, element) => {
+						element = element.replace(/\/{2}([.\s\S]*?)\/{2}/g, "\"+($1)+\"");
 						patches.push(_fill("document.getElementById(\"" + element + "\")", patches));
 						return "\r" + (patches.length -1) + "\n";
 				});
@@ -1396,10 +1434,10 @@ compliant("window.location.combine", (...paths) =>
 					for (let counts = -1; counts < patches.length;) {
 						counts = patches.length;
 						expression = expression.replace(/(\([^\(\)]*\))/g, match => {
-							match = match.replace(/^\( *\?+ *(.*?) *\)$/s, (match, logic) =>
-								"_tolerate(()=>(" + logic + "))");
-							patches.push(_fill(match, patches));
-							return "\t" + (patches.length -1) + "\n";
+						    match = match.replace(/^\( *\?+ *([.\s\S]*?) *\)$/, (match, logic) =>
+						        "_tolerate(()=>(" + logic + "))");
+						    patches.push(_fill(match, patches));
+						    return "\t" + (patches.length -1) + "\n";
 						});
 					}
 				}
@@ -1472,8 +1510,8 @@ compliant("window.location.combine", (...paths) =>
  * colon. Qualifiers behave like properties during view model binding and extend
  * the namespace.
  *
- *        unique
- *        ----
+ *         unique
+ *         ----
  * In some cases it is necessary that different things in the view refer to a
  * target in the corresponding model. However, if these things must still be
  * unique in the view, a unique identifier can be used in addition to the
@@ -1508,19 +1546,28 @@ compliant("window.location.combine", (...paths) =>
  * Attributes of elements are elementary and immutable even if they contain an
  * expression.
  *
- * Clean Code Rendering - The aspect-js relevant attributes are stored in meta
- * objects to each element and are removed in the markup. The following
+ * Clean Code Rendering - The aspect-js relevant attributes are stored in
+ * meta-objects to each element and are removed in the markup. The following
  * attributes are essential: COMPOSITE, ID -- they are cached and remain at the
  * markup, these cannot be changed. the MutationObserver will restore them.
- *
- * Markup/DOM, object tree and virtual paths are analog/homogeneous.
- * Thus virtual paths, object structure in JavaScript (namespace) and the
- * nesting of the DOM must match.
- *
- * @author  Seanox Software Solutions
- * @version 1.7.0 20230412
  */
 (() => {
+
+	"use strict";
+
+	// Storage for variables with the page scope
+	const _render_context_scope = [];
+
+	// Storage for dynamic/temporary variables with the page scope
+	const _render_context_stack = [];
+
+	// Storage for the currently used dynamic/temporary variables with the page
+	// scope. The storages _render_context_scope and _render_context_stack are
+	// used to manage the variables. So that these remain clean and the elements
+	// can use their initial context when rendering without manipulating
+	// _render_context_stack. This applies in particular to the generated
+	// children with their own meta-objects when iterating.
+	const _render_context_workspace = [];
 
 	compliant("Composite", {
 
@@ -1528,7 +1575,7 @@ compliant("window.location.combine", (...paths) =>
 		// they can be used by extensions.
 
 		/** Path of the Composite for: modules (sub-directory of work path) */
-		get MODULES() {return window.location.combine(window.location.pathcontext, "/modules");},
+		get MODULES() {return window.location.combine(window.location.contextPath, "/modules");},
 
 		/** Constant for attribute composite */
 		get ATTRIBUTE_COMPOSITE() {return "composite";},
@@ -1554,9 +1601,6 @@ compliant("window.location.combine", (...paths) =>
 		/** Constant for attribute message */
 		get ATTRIBUTE_MESSAGE() {return "message";},
 
-		/** Constant for attribute notification */
-		get ATTRIBUTE_NOTIFICATION() {return "notification";},
-
 		/** Constant for attribute name */
 		get ATTRIBUTE_NAME() {return "name";},
 
@@ -1568,9 +1612,6 @@ compliant("window.location.combine", (...paths) =>
 
 		/** Constant for attribute release */
 		get ATTRIBUTE_RELEASE() {return "release";},
-
-		/** Constant for attribute strict */
-		get ATTRIBUTE_STRICT() {return "strict";},
 
 		/** Constant for attribute text */
 		get ATTRIBUTE_TEXT() {return "text";},
@@ -1590,7 +1631,7 @@ compliant("window.location.combine", (...paths) =>
 		 * that is cached in the meta-object. Other attributes are only cached
 		 * if they contain an expression.
 		 */
-		get PATTERN_ATTRIBUTE_ACCEPT() {return /^(composite|condition|events|id|import|interval|iterate|message|notification|output|release|render|strict|validate)$/i;},
+		get PATTERN_ATTRIBUTE_ACCEPT() {return /^(composite|condition|events|id|import|interval|iterate|message|output|release|render|validate)$/i;},
 
 		/**
 		 * Pattern for all static attributes.
@@ -1652,7 +1693,7 @@ compliant("window.location.combine", (...paths) =>
 		 * - group 3: unique identifier (optional)
 		 * - group 4: (namespace+)model (optional)
 		 */
-		get PATTERN_ELEMENT_ID() {return /^([_a-z]\w*)((?::\w+)*)?(#\w+)?(@[_a-z]\w*(?::[_a-z]\w*)*)?$/i;},
+		get PATTERN_ELEMENT_ID() {return /^([_a-z]\w*)(?::(\w+(?::\w+)*))?(?:#(\w+))?(?:@([_a-z]\w*(?::[_a-z]\w*)*))?$/i;},
 
 		/** Pattern for a scope (custom tag, based on a word) */
 		get PATTERN_CUSTOMIZE_SCOPE() {return /[_a-z]([\w-]*\w)?$/i;},
@@ -1674,7 +1715,10 @@ compliant("window.location.combine", (...paths) =>
 		get EVENT_MOUNT_END() {return "MountEnd";},
 
 		/** Constants of events when using modules */
-		get EVENT_MODUL_LOAD() {return "ModulLoad";},
+		get EVENT_MODULE_LOAD() {return "ModuleLoad";},
+		get EVENT_MODULE_DOCK() {return "ModuleDock";},
+		get EVENT_MODULE_READY() {return "ModuleReady";},
+		get EVENT_MODULE_UNDOCK() {return "ModuleUndock";},
 
 		/** Constants of events when using HTTP */
 		get EVENT_HTTP_START() {return "HttpStart";},
@@ -1742,9 +1786,10 @@ compliant("window.location.combine", (...paths) =>
 		 * call themselves recursively and do so with the lock they know. In
 		 * addition to the lock mechanism, the methods also control the START,
 		 * NEXT, and END events.
-		 * @param  context  method (render, mound or scan)
-		 * @param  selector
-		 * @return the created lock as meta-object
+		 * @param {Object} context Context (render, mound or scan)
+		 * @param {string|Element} selector Selector to identify elements
+		 * @returns {Object} The created lock as a meta-object
+		 * @throws {Error} In case of an invalid context
 		 */
 		lock(context, selector) {
 
@@ -1754,41 +1799,41 @@ compliant("window.location.combine", (...paths) =>
 					|| context.lock === false) {
 				context.lock = {ticks:1, selector, queue:[],
 						share() {
-							this.ticks++;
-							return this;
+						    this.ticks++;
+						    return this;
 						},
 						release() {
-							this.ticks--;
-							if (this.ticks > 0)
-								return;
-							if (context === Composite.render) {
+						    this.ticks--;
+						    if (this.ticks > 0)
+						        return;
+						    if (context === Composite.render) {
 
-								// To ensure that on conditions when the lock is
-								// created for the marker, the children are also
-								// mounted, the selector must be switched to the
-								// element, because the marker is a text node
-								// without children.
+						        // To ensure that on conditions when the lock is
+						        // created for the marker, the children are also
+						        // mounted, the selector must be switched to the
+						        // element, because the marker is a text node
+						        // without children.
 
-								let selector = this.selector;
-								if (selector instanceof Node
+						        let selector = this.selector;
+						        if (selector instanceof Node
 										&& selector.nodeType === Node.TEXT_NODE) {
-									let serial = selector.ordinal();
-									let object = _render_meta[serial] || {};
-									if (object.condition
+						            let serial = selector.ordinal();
+						            let object = _render_meta[serial] || {};
+						            if (object.condition
 											&& object.condition.element
 											&& object.condition.marker === this.selector)
 										selector = object.condition.element;
-								}
+						        }
 
-								// If the selector is a string, several elements
-								// must be assumed, which may or may not have a
-								// relation to the DOM. Therefore, they are all
-								// considered and mounted separately.
+						        // If the selector is a string, several elements
+						        // must be assumed, which may or may not have a
+						        // relation to the DOM. Therefore, they are all
+						        // considered and mounted separately.
 
-								let nodes = [];
-								if (typeof selector === "string") {
-									const scope = document.querySelectorAll(selector);
-									Array.from(scope).forEach((node) => {
+						        let nodes = [];
+						        if (typeof selector === "string") {
+						            const scope = document.querySelectorAll(selector);
+						            Array.from(scope).forEach((node) => {
 										if (!nodes.includes(node))
 											nodes.push(node);
 										const scope = node.querySelectorAll("*");
@@ -1796,25 +1841,25 @@ compliant("window.location.combine", (...paths) =>
 											if (!nodes.includes(node))
 												nodes.push(node);
 										});
-									});
-								} else if (selector instanceof Element) {
-									nodes = selector.querySelectorAll("*");
-									nodes = [selector].concat(Array.from(nodes));
-								}
+						            });
+						        } else if (selector instanceof Element) {
+						            nodes = selector.querySelectorAll("*");
+						            nodes = [selector].concat(Array.from(nodes));
+						        }
 
-								// Mount all elements in a composite, including
-								// the composite element itself
-								nodes.forEach((node) =>
-									Composite.mount(node));
+						        // Mount all elements in a composite, including
+						        // the composite element itself
+						        nodes.forEach((node) =>
+						            Composite.mount(node));
 
-								Composite.fire(Composite.EVENT_RENDER_END, this.selector);
-							} else if (context === Composite.mount) {
-								Composite.fire(Composite.EVENT_MOUNT_END, this.selector);
-							} else throw new Error("Invalid context: " + context);
-							const selector = context.queue.shift();
-							if (selector)
-								Composite.asynchron(context, selector);
-							context.lock = false;
+						        Composite.fire(Composite.EVENT_RENDER_END, this.selector);
+						    } else if (context === Composite.mount) {
+						        Composite.fire(Composite.EVENT_MOUNT_END, this.selector);
+						    } else throw new Error("Invalid context: " + context);
+						    const selector = context.queue.shift();
+						    if (selector)
+						        Composite.asynchron(context, selector);
+						    context.lock = false;
 					}};
 
 				if (context === Composite.render)
@@ -1835,11 +1880,13 @@ compliant("window.location.combine", (...paths) =>
 
 		/**
 		 * Registers a callback function for composite events.
-		 * @param  event    see Composite.EVENT_***
-		 * @param  callback callback function
-		 * @throws An error occurs in the following cases:
-		 *     - event is not valid or is not supported
-		 *     - callback is not implemented correctly or does not exist
+		 * @param {string} event Event type (see Composite.EVENT_***)
+		 * @param {function} callback Callback function to be registered
+		 * @throws {TypeError} In case of invalid event type
+		 * @throws {TypeError} In case of invalid callback type
+		 * @throws {Error} In the following cases:
+		 *     - Event is not valid or is not supported
+		 *     - Callback is not implemented correctly or does not exist
 		 */
 		listen(event, callback) {
 
@@ -1862,9 +1909,9 @@ compliant("window.location.combine", (...paths) =>
 		/**
 		 * Triggers an event.
 		 * All callback functions for this event are called.
-		 * @param event    see Composite.EVENT_***
-		 * @param variants up to five additional optional arguments that are
-		 *     passed as arguments when the callback function is called
+		 * @param {string} event Event type (see Composite.EVENT_***)
+		 * @param {...*} variants Up to five additional optional arguments
+		 *     passed to the callback function
 		 */
 		fire(event, ...variants) {
 			event = (event || "").trim();
@@ -1882,14 +1929,43 @@ compliant("window.location.combine", (...paths) =>
 		/**
 		 * Asynchronous or in reality non-blocking call of a function. Because
 		 * the asynchronous execution is not possible without Web Worker.
-		 * @param task     function to be executed
-		 * @param variants up to five additional optional arguments that are
-		 *     passed as arguments when the callback function is called
+		 * @param {function} task Function to be executed
+		 * @param {...*} variants Up to five additional optional arguments
+		 *     passed to the callback function
 		 */
 		asynchron(task, ...variants) {
 			window.setTimeout((invoke, ...variants) => {
 				invoke(...variants);
 			}, 0, task, ...variants);
+		},
+
+		/**
+		 * Determines the corresponding meta-object for the passed selector.
+		 * @param   {Element|string} selector, as DOM element or a string
+		 * @returns {object|null} the determined meta-object or null
+		 * @throws  {Error} If the selector is not unique (several nodes found).
+		 */
+		lookup(selector) {
+
+			if (selector == null)
+				return null;
+
+			if (typeof selector === "string") {
+				const nodes = document.querySelectorAll(selector.trim());
+				if (nodes.length <= 0)
+					return null;
+				if (nodes.length > 1)
+					throw new Error("Selector is not unique");
+				return Composite.lookup(nodes[0]);
+			}
+
+			if (!(selector instanceof Element))
+				return null;
+
+			const lookup = _mount_lookup(selector);
+			if (lookup !== null)
+				delete lookup.target;
+			return lookup;
 		},
 
 		/**
@@ -1931,10 +2007,11 @@ compliant("window.location.combine", (...paths) =>
 		 * input fields, so that the input reaches the user interface. In this
 		 * case, a possible value is not synchronized with the model.
 		 *
-		 * @param  selector selector
-		 * @param  lock     unlocking of the model validation
-		 * @return validation result
+		 * @param {Element|string} selector DOM element or a string
+		 * @param {boolean} [lock=true] Unlocking of the model validation
+		 * @returns {boolean|undefined} Validation result
 		 *     true, false, undefined/void
+		 * @throws {Error} In case of a non-unique selector
 		 */
 		validate(selector, lock) {
 
@@ -1995,10 +2072,10 @@ compliant("window.location.combine", (...paths) =>
 				let value;
 				if (selector instanceof Element) {
 					if (selector.tagName.match(/^input$/i)
-							&& selector.type.match(/^radio|checkbox/i))
+						    && selector.type.match(/^radio|checkbox/i))
 						value = selector.checked;
 					else if (selector.tagName.match(/^select/i)
-							&& "selectedIndex" in selector)
+						    && "selectedIndex" in selector)
 						value = selector.options[selector.selectedIndex].value;
 					else if (Composite.ATTRIBUTE_VALUE in selector)
 						value = selector[Composite.ATTRIBUTE_VALUE];
@@ -2019,32 +2096,57 @@ compliant("window.location.combine", (...paths) =>
 				}
 			}
 
-			// ATTRIBUTE_VALIDATE can be combined with ATTRIBUTE_MESSAGE and
-			// ATTRIBUTE_NOTIFICATION. However, ATTRIBUTE_MESSAGE and
-			// ATTRIBUTE_NOTIFICATION have no effect without ATTRIBUTE_VALIDATE.
-			// The value of the ATTRIBUTE_MESSAGE is used as an error message if
-			// the validation was not successful. To output the error message,
-			// the browser function of the HTML5 form validation is used. This
-			// message is displayed via mouse-over. If ATTRIBUTE_NOTIFICATION is
-			// also used, a value is not expected, the message is output as
-			// overlay/notification/report.
-			if (valid !== true) {
-				let message;
-				if (typeof valid === "string"
-						&& valid.trim())
-					message = valid.trim();
-				if (typeof message !== "string") {
-					if (object.attributes.hasOwnProperty(Composite.ATTRIBUTE_MESSAGE))
-						message = String(object.attributes[Composite.ATTRIBUTE_MESSAGE] || "");
-					if ((message || "").match(Composite.PATTERN_EXPRESSION_CONTAINS))
-						message = String(Expression.eval(serial + ":" + Composite.ATTRIBUTE_MESSAGE, message));
-				}
-				if (typeof selector.setCustomValidity === "function"
-						&& Object.usable(message)) {
-					selector.setCustomValidity(message);
-					if (object.attributes.hasOwnProperty(Composite.ATTRIBUTE_NOTIFICATION)
-							&& typeof selector.reportValidity === "function")
-						selector.reportValidity();
+			// ATTRIBUTE_VALIDATE can be supplemented with ATTRIBUTE_MESSAGE.
+			// However, ATTRIBUTE_MESSAGE has no effect without
+			// ATTRIBUTE_VALIDATE. The value of ATTRIBUTE_MESSAGE is used as an
+			// error message if the validation was not successful. For this
+			// purpose, the browser function of HTML5 form validation is used,
+			// which shows  the message as a browser validation tooltip/message.
+			//
+			// The browser validation tooltip/message can be redirected to an
+			// attribute of the validated element if the message begins with the
+			// prefix '@<attribute>:', which includes the return value of
+			// expressions. Redirection to static and protected attributes is
+			// ignored and the message is suppressed for these destinations.
+			// This redirection can be helpful if a custom error concept needs
+			// to be implemented.
+
+			if (typeof selector.setCustomValidity === "function") {
+
+				if (valid === true
+						&& Object.usable(object.message)
+						&& Object.usable(object.message.attribute))
+					selector.removeAttribute(object.message.attribute);
+
+				if (valid !== true) {
+					let message;
+					if (typeof valid === "string"
+						    && valid.trim())
+						message = valid.trim();
+					if (typeof message !== "string") {
+						if (object.attributes.hasOwnProperty(Composite.ATTRIBUTE_MESSAGE))
+						    message = String(object.attributes[Composite.ATTRIBUTE_MESSAGE] || "");
+						if ((message || "").match(Composite.PATTERN_EXPRESSION_CONTAINS))
+						    message = String(Expression.eval(serial + ":" + Composite.ATTRIBUTE_MESSAGE, message));
+					}
+
+					if (Object.usable(message)) {
+						const PATTERN_MESSAGE_REDIRECT = /^@([_a-z](?:[\w-]*\w)?):\s*(.*?)\s*$/i;
+						const redirect = message.match(PATTERN_MESSAGE_REDIRECT);
+						if (redirect) {
+						    const attribute = redirect[1];
+						    if (!(object.statics || {}).hasOwnProperty(attribute.toLowerCase())
+						            && !Composite.PATTERN_ATTRIBUTE_STATIC.test(attribute)) {
+						        object.message = {attribute:attribute};
+						        selector.setAttribute(attribute, redirect[2]);
+						    }
+						    selector.setCustomValidity(redirect[2]);
+						} else {
+						    selector.setCustomValidity(message);
+						    if (typeof selector.reportValidity === "function")
+						        selector.reportValidity();
+						}
+					}
 				}
 			}
 
@@ -2138,9 +2240,9 @@ compliant("window.location.combine", (...paths) =>
 		 * concurrent execution of rendering works sequentially in the order of
 		 * the method call.
 		 *
-		 * @param  selector
-		 * @param  lock
-		 * @throws An error occurs in the following cases:
+		 * @param {Element|string} selector DOM element or a string
+		 * @param {boolean} lock Unlocking of the model validation
+		 * @throws {Error} In the following cases:
 		 *     - namespace is not valid or is not supported
 		 *     - namespace cannot be created if it already exists as a method
 		 */
@@ -2193,6 +2295,8 @@ compliant("window.location.combine", (...paths) =>
 				if (!(object instanceof Object))
 					return;
 
+				const identifier = object.attributes[Composite.ATTRIBUTE_ID];
+
 				// The explicit events are declared by ATTRIBUTE_EVENTS. The
 				// model can, but does not have to, implement the corresponding
 				// method. Explicit events are mainly used to synchronize view
@@ -2206,12 +2310,16 @@ compliant("window.location.combine", (...paths) =>
 
 				// There must be a corresponding model.
 				const meta = _mount_lookup(selector);
-				if (meta instanceof Object) {
+				if (meta instanceof Object
+						&& identifier) {
 
 					// The implicit assignment is based on the on-event-methods
 					// implemented in the model. These are determined and added
 					// to the list of events if the events have not yet been
-					// explicitly declared.
+					// explicitly declared. But this is only useful for elements
+					// with an ID. Since mounting is performed recursively on
+					// the child nodes, it should be prevented that child nodes
+					// are assigned the events of the parents.
 
 					// Events are possible for composites and their interactive
 					// elements. For this purpose, composites define the scope
@@ -2227,26 +2335,26 @@ compliant("window.location.combine", (...paths) =>
 					let model = meta.model;
 					if (meta.target !== undefined)
 						if (typeof meta.target === "object")
-							model = meta.target;
+						    model = meta.target;
 						else model = null;
 
 					for (let entry in model)
 						if (typeof model[entry] === "function"
-								&& entry.match(Composite.PATTERN_EVENT_FUNCTIONS)) {
-							entry = entry.substring(2).toLowerCase();
-							if (!events.includes(entry))
-								events.push(entry);
+						        && entry.match(Composite.PATTERN_EVENT_FUNCTIONS)) {
+						    entry = entry.substring(2).toLowerCase();
+						    if (!events.includes(entry))
+						        events.push(entry);
 						}
 
 					let prototype = model ? Object.getPrototypeOf(model) : null;
 					while (prototype) {
 						Object.getOwnPropertyNames(prototype).forEach(entry => {
-							if (typeof model[entry] === "function"
-									&& entry.match(Composite.PATTERN_EVENT_FUNCTIONS)) {
-								entry = entry.substring(2).toLowerCase();
-								if (!events.includes(entry))
-									events.push(entry);
-							}
+						    if (typeof model[entry] === "function"
+						            && entry.match(Composite.PATTERN_EVENT_FUNCTIONS)) {
+						        entry = entry.substring(2).toLowerCase();
+						        if (!events.includes(entry))
+						            events.push(entry);
+						    }
 						});
 						prototype = Object.getPrototypeOf(prototype);
 					}
@@ -2263,7 +2371,7 @@ compliant("window.location.combine", (...paths) =>
 
 						let action = event.type.toLowerCase();
 						if (!Composite.PATTERN_EVENT_FILTER.includes(action))
-							return;
+						    return;
 						action = Composite.PATTERN_EVENT_FILTER.indexOf(action);
 						action = Composite.PATTERN_EVENT_NAMES[action];
 
@@ -2277,95 +2385,97 @@ compliant("window.location.combine", (...paths) =>
 						const meta = _mount_lookup(target);
 						if (meta instanceof Object) {
 
-							let value;
-							if (target instanceof Element) {
-								if (target.tagName.match(/^input$/i)
+						    let value;
+						    if (target instanceof Element) {
+						        if (target.tagName.match(/^input$/i)
 										&& target.type.match(/^radio|checkbox/i))
-									value = target.checked;
-								else if (target.tagName.match(/^select/i)
+						            value = target.checked;
+						        else if (target.tagName.match(/^select/i)
 										&& "selectedIndex" in target)
-									value = target.options[target.selectedIndex].value;
-								else if (Composite.ATTRIBUTE_VALUE in target)
-									value = target[Composite.ATTRIBUTE_VALUE];
-							}
+						            value = target.options[target.selectedIndex].value;
+						        else if (Composite.ATTRIBUTE_VALUE in target)
+						            value = target[Composite.ATTRIBUTE_VALUE];
+						    }
 
-							// In case of a failed validation, the event and the
-							// default action of the browser will be canceled,
-							// if additionally ATTRIBUTE_STRICT is used. The use
-							// of ATTRIBUTE_STRICT became necessary, because
-							// otherwise invalid inputs are not passed on to the
-							// model, which however it is desirable in some
-							// cases, if in the view also erroneous is to be
-							// reflected.
-							if (!object.attributes.hasOwnProperty(Composite.ATTRIBUTE_STRICT)
-									|| valid === true) {
+						    // Validation works strictly by default. This means
+						    // that the value must explicitly be true and only
+						    // then is the input data synchronized with the
+						    // model via the HTML elements. This protects
+						    // against invalid data in the models which may then
+						    // be reflected in the view. If ATTRIBUTE_VALIDATE
+						    // is declared as optional, this behaviour can be
+						    // specifically deactivated and the input data is
+						    // then always synchronized with the model. The
+						    // effects of validation are then only optional.
+						    if (String(object.attributes[Composite.ATTRIBUTE_VALIDATE]).toLowerCase() === "optional"
+						            || valid === true) {
 
-								// Step 2: Synchronisation
+						        // Step 2: Synchronisation
 
-								// Synchronization expects a data field. It can
-								// be a simple data type or an object with the
-								// property value. Other targets are ignored.
-								// The synchronization expects a successful
-								// validation, otherwise it will not be executed.
-								const accept = (property) => {
-									const type = typeof property;
-									if (property === undefined)
+						        // Synchronization expects a data field. It can
+						        // be a simple data type or an object with the
+						        // property value. Other targets are ignored.
+						        // The synchronization expects a successful
+						        // validation, otherwise it will not be executed.
+						        const accept = (property) => {
+						            const type = typeof property;
+						            if (property === undefined)
 										return false;
-									if (type === "object"
+						            if (type === "object"
 											&& property === null)
 										return true;
-									return type === "boolean"
+						            return type === "boolean"
 										|| type === "number"
 										|| type === "string";
-								};
+						        };
 
-								// A composite is planned as a container for
-								// sub-elements. Theoretically, an input element
-								// can also be a composite and thus both model
-								// and input element / data field. In this case,
-								// a composite can assign a value to itself.
-								if (accept(meta.target)) {
-									meta.target = value;
-								} else if (typeof meta.target === "object") {
-									if (accept(meta.target["value"]))
-										meta.target["value"] = value;
-								} else if (meta.target === undefined) {
-									if (accept(meta.model["value"]))
-										meta.model["value"] = value;
-								}
+						        // A composite is planned as a container for
+						        // sub-elements. Theoretically, an input element
+						        // can also be a composite and thus both model
+						        // and input element / data field. In this case,
+						        // a composite can assign a value to itself.
+						        if (accept(meta.target)) {
+						            meta.target = value;
+						        } else if (typeof meta.target === "object") {
+						            if (accept(meta.target[Composite.ATTRIBUTE_VALUE]))
+										meta.target[Composite.ATTRIBUTE_VALUE] = value;
+						        } else if (meta.target === undefined) {
+						            if (accept(meta.model[Composite.ATTRIBUTE_VALUE]))
+										meta.model[Composite.ATTRIBUTE_VALUE] = value;
+						        }
 
-								// Step 3: Invocation
+						        // Step 3: Invocation
 
-								// Events are possible for composites and their
-								// interactive elements. For this purpose,
-								// composites define the scope with their model.
-								// Interactive composite elements are an object
-								// in the model that contains the interaction
-								// methods corresponding to the events.
-								// Therefore, the scope of interactive composite
-								// elements shifts from the model to the
-								// according object. In all cases, a name-based
-								// alignment in the model and thus ATTRIBUTE_ID
-								// is required. Anonymous interaction elements
-								// do not have this alignment and no scope can
-								// be determined.
+						        // Events are possible for composites and their
+						        // interactive elements. For this purpose,
+						        // composites define the scope with their model.
+						        // Interactive composite elements are an object
+						        // in the model that contains the interaction
+						        // methods corresponding to the events.
+						        // Therefore, the scope of interactive composite
+						        // elements shifts from the model to the
+						        // according object. In all cases, a name-based
+						        // alignment in the model and thus ATTRIBUTE_ID
+						        // is required. Anonymous interaction elements
+						        // do not have this alignment and no scope can
+						        // be determined.
 
-								let model = meta.model;
-								if (meta.target !== undefined)
-									if (meta.target
+						        let model = meta.model;
+						        if (meta.target !== undefined)
+						            if (meta.target
 											&& typeof meta.target === "object")
 										model = meta.target;
-									else model = null;
+						            else model = null;
 
-								// For the event, a corresponding method is
-								// searched in the model that can be called. If
-								// their return value is false, the event and
-								// thus the default action of the browser is
-								// cancelled. The invocation expects a positive
-								// validation, otherwise it will not be executed.
-								if (model && typeof model["on" + action] === "function")
-									result = model["on" + action].call(model, event);
-							}
+						        // For the event, a corresponding method is
+						        // searched in the model that can be called. If
+						        // their return value is false, the event and
+						        // thus the default action of the browser is
+						        // cancelled. The invocation expects a positive
+						        // validation, otherwise it will not be executed.
+						        if (model && typeof model["on" + action] === "function")
+						            result = model["on" + action].call(model, event);
+						    }
 						}
 
 						// Step 4: Rendering
@@ -2374,27 +2484,46 @@ compliant("window.location.combine", (...paths) =>
 						// occurs, all elements that correspond to the query
 						// selector rendering are updated.
 						let events = object.attributes.hasOwnProperty(Composite.ATTRIBUTE_EVENTS)
-								? object.attributes[Composite.ATTRIBUTE_EVENTS] : "";
+						        ? object.attributes[Composite.ATTRIBUTE_EVENTS] : "";
 						events = String(events || "");
 						events = events.toLowerCase().split(/\s+/);
 						if (events.includes(action.toLowerCase())) {
-							let render = object.attributes.hasOwnProperty(Composite.ATTRIBUTE_RENDER)
-									? object.attributes[Composite.ATTRIBUTE_RENDER] : "";
-							render = String(render || "");
-							if ((render || "").match(Composite.PATTERN_EXPRESSION_CONTAINS))
-								render = Expression.eval(serial + ":" + Composite.ATTRIBUTE_RENDER, render);
-							Composite.render(render);
+						    let render = object.attributes.hasOwnProperty(Composite.ATTRIBUTE_RENDER)
+						            ? object.attributes[Composite.ATTRIBUTE_RENDER] : "";
+						    render = String(render || "");
+						    if ((render || "").match(Composite.PATTERN_EXPRESSION_CONTAINS))
+						        render = Expression.eval(serial + ":" + Composite.ATTRIBUTE_RENDER, render);
+						    Composite.render(render);
 						}
 
 						if (meta instanceof Object) {
-							if ((result !== undefined && !result)
-									|| (valid !== undefined && valid !== true))
-								event.preventDefault();
-							if (result !== undefined)
-								return result;
+						    if ((result !== undefined && !result)
+						            || (valid !== undefined && valid !== true))
+						        event.preventDefault();
+						    if (result !== undefined)
+						        return result;
 						}
 					});
 				});
+
+				// The current value in the model must be set in the HTML
+				// element if the element has a corresponding value property.
+				//     model -> view
+				// This is only useful for elements with an ID. Because mounting
+				// is performed recursively on the child nodes, it should be
+				// prevented that child nodes are assigned.
+				if (meta && meta.target && identifier) {
+					let value = meta.target;
+					if (meta.target instanceof Object)
+						value = Composite.ATTRIBUTE_VALUE in meta.target ? meta.target.value : undefined;
+					if (value !== undefined) {
+						if (selector.tagName.match(/^input$/i)
+						        && selector.type.match(/^radio|checkbox/i))
+						    selector.checked = value;
+						else if (Composite.ATTRIBUTE_VALUE in selector)
+						    selector[Composite.ATTRIBUTE_VALUE] = value;
+					}
+				}
 			} finally {
 				lock.release();
 			}
@@ -2430,15 +2559,15 @@ compliant("window.location.combine", (...paths) =>
 		 * Macros and selectors are based on a text key. If this key is used
 		 * more than once, existing macros and selectors will be overwritten.
 		 *
-		 *     Custom Acceptor
+		 *     Custom Interceptor
 		 *     ---
-		 * Acceptors are a very special way to customize. Unlike the other ways,
-		 * here the rendering is not shifted into own implementations. With an
-		 * acceptor, an element is manipulated before rendering and only if the
-		 * renderer processes the element initially. This makes it possible to
-		 * make individual changes to the attributes or the markup before the
-		 * renderer processes them. This does not affect the implementation of
-		 * the rendering.
+		 * Interceptors are a very special way to customize. Unlike the other
+		 * ways, here the rendering is not shifted into own implementations.
+		 * With an interceptor, an element is manipulated before rendering and
+		 * only if the renderer processes the element initially. This makes it
+		 * possible to make individual changes to the attributes or the markup
+		 * before the renderer processes them. This does not affect the
+		 * implementation of the rendering.
 		 *
 		 *     Composite.customize(function(element) {...});
 		 *
@@ -2449,7 +2578,7 @@ compliant("window.location.combine", (...paths) =>
 		 *
 		 *     Composite.customize(parameter:string, value);
 		 *
-		 * Parameters start with @ and thereby differ from Acceptor/Selector/Tag.
+		 * Parameters start with @ in difference to Interceptor/Selector/Tag.
 		 *
 		 *     @ATTRIBUTES-STATICS
 		 * Static attributes are a component of the hardening of the markup.
@@ -2461,10 +2590,10 @@ compliant("window.location.combine", (...paths) =>
 		 *
 		 *     Composite.customize("@ATTRIBUTES-STATICS", "...");
 		 *
-		 * @param  variants
-		 * @throws An error occurs in the following cases:
-		 *     - namespace is not valid or is not supported
-		 *     - callback function is not implemented correctly
+		 * @param {...*} variants Variants for customization
+		 * @throws {Error} In following cases:
+		 *     - Namespace is not valid or is not supported
+		 *     - Callback function is not implemented correctly
 		 */
 		customize(...variants) {
 
@@ -2490,7 +2619,7 @@ compliant("window.location.combine", (...paths) =>
 				statics.forEach((entry) => {
 					entry = entry.toLowerCase();
 					if (!_statics.has(entry)
-							&& !entry.match(Composite.PATTERN_ATTRIBUTE_ACCEPT)) {
+						    && !entry.match(Composite.PATTERN_ATTRIBUTE_ACCEPT)) {
 						_statics.add(entry);
 						changes.push(entry);
 					}
@@ -2505,10 +2634,10 @@ compliant("window.location.combine", (...paths) =>
 					changes.forEach((attribute) => {
 						object.statics = object.statics || {};
 						if (object.statics.hasOwnProperty[attribute]
-								&& object.statics[attribute] !== undefined)
-							return;
+						        && object.statics[attribute] !== undefined)
+						    return;
 						if (element.hasAttribute(attribute))
-							object.statics[attribute] = element.getAttribute(attribute);
+						    object.statics[attribute] = element.getAttribute(attribute);
 						else object.statics[attribute] = null;
 					});
 					Array.from(element.childNodes).forEach((node) =>
@@ -2519,10 +2648,10 @@ compliant("window.location.combine", (...paths) =>
 			}
 
 			// If only one argument of type function is passed, the method is
-			// registered as an acceptor.
+			// registered as an interceptor.
 			if (typeof scope === "function"
 					&& variants.length === 1) {
-				_acceptors.add(scope);
+				_interceptors.add(scope);
 				return;
 			}
 
@@ -2565,12 +2694,12 @@ compliant("window.location.combine", (...paths) =>
 		 * concurrent execution of rendering works sequentially in the order of
 		 * the method call.
 		 *
-		 *     Element Meta Object
+		 *     Element meta-object
 		 *     ----
-		 * With the processed HTML elements and text nodes, simplified meta
-		 * objects are created. The serial, the reference on the HTML element
-		 * and the initial attributes (which are required for rendering) are
-		 * stored there.
+		 * With the processed HTML elements and text nodes, simplified
+		 * meta-objects are created. The serial, the reference on the HTML
+		 * element and the initial attributes (which are required for rendering)
+		 * are stored there.
 		 *
 		 *     Serial
 		 *     ----
@@ -2582,22 +2711,23 @@ compliant("window.location.combine", (...paths) =>
 		 * The following attributes and elements are supported:
 		 *
 		 * - Attributes:
-		 *     COMPOSITE    INTERVAL        RELEASE
-		 *     CONDITION    ITERATE         RENDER
-		 *     EVENTS       MESSAGE         VALIDATE
-		 *     ID           NOTIFICATION
-		 *     IMPORT       OUTPUT
+		 *     COMPOSITE    INTERVAL    RENDER
+		 *     CONDITION    ITERATE     VALIDATE
+		 *     EVENTS       MESSAGE
+		 *     ID           OUTPUT
+		 *     IMPORT       RELEASE
 		 *
 		 * - Expression Language
 		 * - Scripting
 		 * - Customizing
-		 *   Tag, Selector, Acceptor
+		 *   Tag, Selector, Interceptor
 		 *
 		 * Details are described in the documentation:
 		 * https://github.com/seanox/aspect-js/blob/master/manual/en/markup.md#contents-overview
 		 *
-		 * @param selector
-		 * @param lock
+		 * @param {Element|string} selector DOM element or a string
+		 * @param {boolean} lock Unlocking of the model validation
+		 * @throws {Error} In case of errors occurring
 		 */
 		render(selector, lock) {
 
@@ -2622,6 +2752,23 @@ compliant("window.location.combine", (...paths) =>
 			if (!selector)
 				selector = Composite.render.queue[0];
 
+			// Even before rendering, possible expressions in the initial ID
+			// should be resolved. As the expression can refer to temporary
+			// variables, the context workspace must be set temporarily for
+			// scripting. As the object does not yet exist, the context
+			// corresponds to the current context stack. After resolving the
+			// expression, however, the context workspace must be reset.
+			if (selector instanceof Element
+					&& !_render_meta[selector.ordinal()]) {
+				_render_context_workspace.push(..._render_context_stack);
+				let id = selector.getAttribute(Composite.ATTRIBUTE_ID) || "";
+				if (id.match(Composite.PATTERN_EXPRESSION_CONTAINS)) {
+					id = Expression.eval(selector.ordinal() + ":" + Composite.ATTRIBUTE_ID, id);
+					selector.setAttribute(Composite.ATTRIBUTE_ID, id);
+				}
+				_render_context_workspace.length = 0;
+			}
+
 			lock = Composite.lock(Composite.render, selector);
 
 			const origin = selector;
@@ -2641,123 +2788,137 @@ compliant("window.location.combine", (...paths) =>
 				if (!(selector instanceof Node))
 					return;
 
-				// If a custom tag exists, the macro is executed. Macros are
-				// completely user-specific. The return value determines whether
-				// the standard functions are used or not. Only the return value
-				// false (not void, not empty) terminates the rendering for the
-				// macro without using the standard functions.
+				let serial = selector.ordinal();
+				let object = _render_meta[serial];
+				_render_context_workspace.length = 0;
+				if (object && object.context)
+					_render_context_workspace.push(...object.context);
+				else _render_context_workspace.push(..._render_context_stack);
+
+				// If a custom tag exists, the action is executed. Custom tag
+				// are completely user-specific. The return value determines
+				// whether the standard functions are used or not. Only the
+				// return value false (not void, not empty) terminates the
+				// rendering for the macro without using the standard functions.
 				const macro = _macros.get(selector.nodeName.toLowerCase());
 				if (macro && macro(selector) === false)
 					return;
 
-				// If a custom selector exists, the macro is executed. Selectors
-				// work similar to macros. Unlike macros, selectors use a CSS
-				// selector to detect elements. This selector must match the
-				// current element from the point of view of the parent.
-				// Selectors are more flexible and multifunctional. Therefore,
-				// different selectors and thus different functions can match
-				// one element. In this case, all implemented callback methods
-				// are performed. The return value determines whether the loop
-				// is aborted or not. Only the return value false (not void, not
-				// empty) terminates the loop and the rendering for the selector
-				// without using the standard functions.
+				// If a custom selector exists, the action is executed.
+				// Selectors work similar to macros. Unlike macros, selectors
+				// use a CSS selector to detect elements. This selector must
+				// match the current element from the point of view of the
+				// parent. Selectors are more flexible and multifunctional.
+				// Therefore, different selectors and thus different functions
+				// can match one element. In this case, all implemented callback
+				// methods are performed. The return value determines whether
+				// the loop is aborted or not. Only the return value false (not
+				// void, not empty) terminates the loop and the rendering for
+				// the selector without using the standard functions.
 				if (selector.parentNode) {
 					for (const [key, macro] of _selectors) {
 						const nodes = selector.parentNode.querySelectorAll(macro.selector);
 						if (Array.from(nodes).includes(selector)) {
-							if (macro.callback(selector) === false)
-								return;
+						    if (macro.callback(selector) === false)
+						        return;
 						}
 					}
 				}
 
-				// Register each analyzed node/element and minimizes multiple
+				// Registers each analysed node/element and minimizes multiple
 				// analysis. For registration, the serial of the node/element is
 				// used. The node prototype has been enhanced with creation and
 				// a get-function. During the analysis, the attributes of an
 				// element (not node) containing an expression or all allowed
 				// attributes are cached in the memory (_render_meta).
-				let serial = selector.ordinal();
-				let object = _render_meta[serial];
+
 				if (!object) {
 
-					// Acceptors are a very special way to customize. Unlike the
-					// other ways, here the rendering is not shifted into own
-					// implementations. With an acceptor, an element is
+					// Elements included in ignored elements of type: script +
+					// style are ignored.
+					const checkElementChainForIgnored = (element, regex) =>
+						element && element.parentNode
+						    ? regex.test(element.parentNode.nodeName) || checkElementChainForIgnored(element.parentNode, regex) : false;
+					if (checkElementChainForIgnored(selector, Composite.PATTERN_ELEMENT_IGNORE))
+						return;
+
+					// Interceptors are a very special way to customize. Unlike
+					// the other ways, here the rendering is not shifted into
+					// own implementations. With an interceptor, an element is
 					// manipulated before rendering and only if the renderer
 					// processes the element initially. This makes it possible
 					// to make individual changes to the attributes or the
 					// markup before the renderer processes them. This does not
 					// affect the implementation of the rendering.
-					// Example of the method call with an acceptor:
+					// Example of the method call with an interceptor:
 					//     Composite.customize(function(element) {...});
-					_acceptors.forEach((acceptor) =>
-						acceptor.call(null, selector));
+					_interceptors.forEach((interceptor) =>
+						interceptor.call(null, selector));
 
-					object = {serial, element:selector, attributes:{}};
+					object = {serial, element:selector, attributes:{}, context:[..._render_context_workspace]};
 					_render_meta[serial] = object;
 					if ((selector instanceof Element)
-							&& selector.attributes) {
+						    && selector.attributes) {
 						Array.from(selector.attributes).forEach((attribute) => {
-							attribute = {name:attribute.name.toLowerCase(), value:(attribute.value || "").trim()};
-							if (attribute.value.match(Composite.PATTERN_EXPRESSION_CONTAINS)
-									|| attribute.name.match(Composite.PATTERN_ATTRIBUTE_ACCEPT)
-									|| _statics.has(attribute.name)) {
+						    attribute = {name:attribute.name.toLowerCase(), value:(attribute.value || "").trim()};
+						    if (attribute.value.match(Composite.PATTERN_EXPRESSION_CONTAINS)
+						            || attribute.name.match(Composite.PATTERN_ATTRIBUTE_ACCEPT)
+						            || _statics.has(attribute.name)) {
 
-								// Remove all internal attributes but not the
-								// statics. Static attributes are still used in
-								// the markup or for the rendering.
-								if (attribute.name.match(Composite.PATTERN_ATTRIBUTE_ACCEPT)
+						        // Remove all internal attributes but not the
+						        // statics. Static attributes are still used in
+						        // the markup or for the rendering.
+						        if (attribute.name.match(Composite.PATTERN_ATTRIBUTE_ACCEPT)
 										&& !attribute.name.match(Composite.PATTERN_ATTRIBUTE_STATIC)
 										&& !_statics.has(attribute.name)
 										&& attribute.name !== Composite.ATTRIBUTE_RELEASE)
-									selector.removeAttribute(attribute.name);
+						            selector.removeAttribute(attribute.name);
 
-								object.attributes[attribute.name] = attribute.value;
+						        object.attributes[attribute.name] = attribute.value;
 
-								// Special case: ATTRIBUTE_ID/ATTRIBUTE_EVENTS
-								// Both attributes are used initially for the
-								// object and event binding. Expressions are
-								// supported for the attributes, but these are
-								// only initially resolved during the first
-								// rendering.
+						        // Special case: ATTRIBUTE_ID/ATTRIBUTE_EVENTS
+						        // Both attributes are used initially for the
+						        // object and event binding. Expressions are
+						        // supported for the attributes, but these are
+						        // only initially resolved during the first
+						        // rendering.
 
-								// Special case: static attributes
-								// These attributes are used initially markup
-								// harding. Expressions are supported for the
-								// attributes, but these are only initially
-								// resolved during the first rendering.
+						        // Special case: static attributes
+						        // These attributes are used initially markup
+						        // harding. Expressions are supported for the
+						        // attributes, but these are only initially
+						        // resolved during the first rendering.
 
-								if (attribute.value.match(Composite.PATTERN_EXPRESSION_CONTAINS)
+						        if (attribute.value.match(Composite.PATTERN_EXPRESSION_CONTAINS)
 										&& (attribute.name.match(Composite.PATTERN_ATTRIBUTE_STATIC)
 												|| attribute.name === Composite.ATTRIBUTE_ID
 												|| attribute.name === Composite.ATTRIBUTE_EVENTS
 												|| _statics.has(attribute.name)))
-									attribute.value = Expression.eval(selector.ordinal() + ":" + attribute.name, attribute.value);
+						            attribute.value = Expression.eval(selector.ordinal() + ":" + attribute.name, attribute.value);
 
-								// The initial value of the static attribute is
-								// registered for the restore. This is a part of
-								// the markup hardening of the MutationObserver.
-								if (attribute.name.match(Composite.PATTERN_ATTRIBUTE_STATIC)
+						        // The initial value of the static attribute is
+						        // registered for the restore. This is a part of
+						        // the markup hardening of the MutationObserver.
+						        if (attribute.name.match(Composite.PATTERN_ATTRIBUTE_STATIC)
 										|| attribute.name === Composite.ATTRIBUTE_ID
 										|| attribute.name === Composite.ATTRIBUTE_EVENTS)
-									object.attributes[attribute.name] = attribute.value;
+						            object.attributes[attribute.name] = attribute.value;
 
-								// The initial value of the static attribute is
-								// registered for the restore. This is a part of
-								// the markup hardening of the MutationObserver.
-								object.statics = object.statics || {};
-								if (_statics.has(attribute.name))
-									object.statics[attribute.name] = attribute.value;
+						        // The initial value of the static attribute is
+						        // registered for the restore. This is a part of
+						        // the markup hardening of the MutationObserver.
+						        object.statics = object.statics || {};
+						        if (_statics.has(attribute.name))
+						            object.statics[attribute.name] = attribute.value;
 
-								// The result of the expression must be written
-								// back to the static attributes.
-								if (attribute.name.match(Composite.PATTERN_ATTRIBUTE_STATIC)
+						        // The result of the expression must be written
+						        // back to the static attributes.
+						        if (attribute.name.match(Composite.PATTERN_ATTRIBUTE_STATIC)
 										|| attribute.name === Composite.ATTRIBUTE_ID
 										|| attribute.name === Composite.ATTRIBUTE_EVENTS
 										|| _statics.has(attribute.name))
-									selector.setAttribute(attribute.name, attribute.value);
-							}
+						            selector.setAttribute(attribute.name, attribute.value);
+						    }
 						});
 
 						// ATTRIBUTE_CONDITION: If an HTML element uses this
@@ -2770,38 +2931,39 @@ compliant("window.location.combine", (...paths) =>
 						// continues.
 
 						if (object.attributes.hasOwnProperty(Composite.ATTRIBUTE_CONDITION)) {
-							const expression = (object.attributes[Composite.ATTRIBUTE_CONDITION] || "").trim();
-							if (!expression.match(Composite.PATTERN_EXPRESSION_CONDITION))
-								throw new Error(`Invalid condition${expression ? ": " + expression : ""}`);
+						    const expression = (object.attributes[Composite.ATTRIBUTE_CONDITION] || "").trim();
+						    if (!expression.match(Composite.PATTERN_EXPRESSION_CONDITION))
+						        throw new Error(`Invalid condition${expression ? ": " + expression : ""}`);
 
-							// The marker and its meta-object are created. This
-							// prevents the MutationObserver from rendering the
-							// marker, because it is then already known.
-							const marker = document.createTextNode("");
-							const template = selector.cloneNode(true);
-							const attributes = object.attributes;
-							object = {serial:marker.ordinal(), element:marker, attributes,
-								condition:{expression, template, marker, element:null, attributes, complete:false, share:null}};
-							_render_meta[object.serial] = object;
+						    // The marker and its meta-object are created. This
+						    // prevents the MutationObserver from rendering the
+						    // marker, because it is then already known.
+						    const marker = document.createTextNode("");
+						    const template = selector.cloneNode(true);
+						    const attributes = object.attributes;
+						    object = {serial:marker.ordinal(), element:marker, attributes,
+						        context:[..._render_context_workspace],
+						        condition:{expression, template, marker, element:null, attributes, complete:false, share:null}};
+						    _render_meta[object.serial] = object;
 
-							// The meta-object for the HTML element is removed,
-							// because only the new marker is relevant.
-							delete _render_meta[serial];
+						    // The meta-object for the HTML element is removed,
+						    // because only the new marker is relevant.
+						    delete _render_meta[serial];
 
-							// The marker is initially created and in the DOM.
-							selector.parentNode.replaceChild(marker, selector);
+						    // The marker is initially created and in the DOM.
+						    selector.parentNode.replaceChild(marker, selector);
 
-							// The rendering of the marker continues
-							// recursively, so that objects do not have to be
-							// switched/rewritten and the rendering can be
-							// finished here.
-							Composite.render(marker, lock.share());
-							return;
+						    // The rendering of the marker continues
+						    // recursively, so that objects do not have to be
+						    // switched/rewritten and the rendering can be
+						    // finished here.
+						    Composite.render(marker, lock.share());
+						    return;
 						}
 
 						// Load modules/components/composite resources.
 						if (object.attributes.hasOwnProperty(Composite.ATTRIBUTE_COMPOSITE))
-							Composite.include(selector);
+						    Composite.include(selector);
 					}
 				}
 
@@ -2832,7 +2994,9 @@ compliant("window.location.combine", (...paths) =>
 					// The condition must be explicitly true, otherwise the
 					// output is removed from the DOM and the rendering ends.
 					// The cleanup will be done by the MutationObserver.
-					if (Expression.eval(serial + ":" + Composite.ATTRIBUTE_CONDITION, condition.expression) !== true) {
+					const expression = Expression.eval(serial + ":" + Composite.ATTRIBUTE_CONDITION, condition.expression);
+					selector.nodeValue = expression instanceof Error ? expression : "";
+					if (expression !== true) {
 						// Because a condition can consist of two elements
 						// (marker and conditional element), it can happen that
 						// when rendering a NodeList, the marker is hit first,
@@ -2841,8 +3005,8 @@ compliant("window.location.combine", (...paths) =>
 						// deleted. Then this place is also called, but then the
 						// node/element has no parent.
 						if (condition.element
-								&& condition.element.parentNode)
-							condition.element.parentNode.removeChild(condition.element);
+						        && condition.element.parentNode)
+						    condition.element.parentNode.removeChild(condition.element);
 						condition.element = null;
 						condition.share = lock.ordinal();
 						return;
@@ -2859,7 +3023,9 @@ compliant("window.location.combine", (...paths) =>
 					condition.element = condition.template.cloneNode(true);
 					const element = condition.element;
 					const attributes = Object.assign({}, condition.attributes);
-					_render_meta[element.ordinal()] = {serial:element.ordinal(), element, attributes, condition};
+					_render_meta[element.ordinal()] = {
+						serial:element.ordinal(), element, attributes, condition,
+						context:[..._render_context_workspace]};
 
 					// Load modules/components/composite resources.
 					// That no resources are loaded more than once is taken care
@@ -2902,16 +3068,15 @@ compliant("window.location.combine", (...paths) =>
 				//     Composite.ATTRIBUTE_VALUE
 				// Only static content uses Composite.ATTRIBUTE_TEXT, dynamic
 				// content and parameters use Composite.ATTRIBUTE_VALUE, and
-				// only the parameters use Composite.ATTRIBUTE_NAME. The meta
-				// objects for dynamic content also have their own rendering
-				// method for generating output. Static content is ignored later
-				// during rendering because it is unchangeable.
+				// only the parameters use Composite.ATTRIBUTE_NAME. For dynamic
+				// content the meta-objects also have their own rendering method
+				// for generating output. Static content is ignored later during
+				// rendering because it is unchangeable.
 				if (selector.nodeType === Node.TEXT_NODE) {
-
-					// Elements of type: script + style are ignored.
-					// No expression is replaced here.
-					if (selector.parentNode
-							&& selector.parentNode.nodeName.match(Composite.PATTERN_ELEMENT_IGNORE))
+					// TEXT_NODE is also used by markers. Markers have no
+					// content and no render method and are ignored.
+					if (typeof object.render === "undefined"
+						    && selector.textContent === "")
 						return;
 
 					// Text nodes are only analyzed once. Pure text is
@@ -2955,31 +3120,32 @@ compliant("window.location.combine", (...paths) =>
 						// are interpreted later, but do not generate any output.
 
 						content = content.replace(Composite.PATTERN_EXPRESSION_CONTAINS, (match) => {
-							if (!match.substring(2, match.length -2).trim())
-								return "";
-							const node = document.createTextNode("");
-							const serial = node.ordinal();
-							const object = {serial, element:node, attributes:{}, value:null,
-								render() {
-									let word = "";
-									if (this.attributes.hasOwnProperty(Composite.ATTRIBUTE_NAME)) {
+						    if (!match.substring(2, match.length -2).trim())
+						        return "";
+						    const node = document.createTextNode("");
+						    const serial = node.ordinal();
+						    const object = {serial, element:node, attributes:{}, value:null,
+						        context:[..._render_context_workspace],
+						        render() {
+						            let word = "";
+						            if (this.attributes.hasOwnProperty(Composite.ATTRIBUTE_NAME)) {
 										const name = String(this.attributes[Composite.ATTRIBUTE_NAME] || "").trim();
 										const value = String(this.attributes[Composite.ATTRIBUTE_VALUE] || "").trim();
 										window[name] = Expression.eval(this.serial + ":" + Composite.ATTRIBUTE_VALUE, value);
-									} else {
+						            } else {
 										word = String(this.attributes[Composite.ATTRIBUTE_VALUE] || "");
 										word = Expression.eval(this.serial + ":" + Composite.ATTRIBUTE_VALUE, word);
-									}
-									this.value = word;
-									this.element.textContent = word !== undefined ? word : "";
-								}};
-								const param = match.match(Composite.PATTERN_EXPRESSION_VARIABLE);
-								if (param) {
-									object.attributes[Composite.ATTRIBUTE_NAME] = param[1];
-									object.attributes[Composite.ATTRIBUTE_VALUE] = "{{" + param[2] + "}}";
-								} else object.attributes[Composite.ATTRIBUTE_VALUE] = match;
-							_render_meta[serial] = object;
-							return "{{" + serial + "}}";
+						            }
+						            this.value = word;
+						            this.element.textContent = word !== undefined ? word : "";
+						        }};
+						    const param = match.match(Composite.PATTERN_EXPRESSION_VARIABLE);
+						    if (param) {
+						        object.attributes[Composite.ATTRIBUTE_NAME] = param[1];
+						        object.attributes[Composite.ATTRIBUTE_VALUE] = "{{" + param[2] + "}}";
+						    } else object.attributes[Composite.ATTRIBUTE_VALUE] = match;
+						    _render_meta[serial] = object;
+						    return "{{" + serial + "}}";
 						});
 
 						// Step 4:
@@ -2990,46 +3156,47 @@ compliant("window.location.combine", (...paths) =>
 						// static text or dynamic content.
 
 						if (content.match(Composite.PATTERN_EXPRESSION_CONTAINS)) {
-							const words = content.split(/(\{\{\d+\}\})/);
-							words.forEach((word, index, array) => {
-								if (word.match(/^\{\{\d+\}\}$/)) {
-									const serial = parseInt(word.substring(2, word.length -2).trim());
-									const object = _render_meta[serial];
-									Composite.fire(Composite.EVENT_RENDER_NEXT, object.element);
-									object.render();
-									array[index] = object.element;
-								} else {
-									const node = document.createTextNode(word);
-									const serial = node.ordinal();
-									const object = {serial, element:node, attributes:{}};
-									Composite.fire(Composite.EVENT_RENDER_NEXT, object.element);
-									object.element.textContent = word;
-									object.attributes[Composite.ATTRIBUTE_TEXT] = word;
-									_render_meta[serial] = object;
-									array[index] = object.element;
-								}
-							});
+						    const words = content.split(/(\{\{\d+\}\})/);
+						    words.forEach((word, index, array) => {
+						        if (word.match(/^\{\{\d+\}\}$/)) {
+						            const serial = parseInt(word.substring(2, word.length -2).trim());
+						            const object = _render_meta[serial];
+						            Composite.fire(Composite.EVENT_RENDER_NEXT, object.element);
+						            object.render();
+						            array[index] = object.element;
+						        } else {
+						            const node = document.createTextNode(word);
+						            const serial = node.ordinal();
+						            const object = {serial, element:node, attributes:{},
+										context:[..._render_context_workspace]};
+						            Composite.fire(Composite.EVENT_RENDER_NEXT, object.element);
+						            object.element.textContent = word;
+						            object.attributes[Composite.ATTRIBUTE_TEXT] = word;
+						            _render_meta[serial] = object;
+						            array[index] = object.element;
+						        }
+						    });
 
-							// Step 5:
-							// The newly created text nodes are inserted before
-							// the current text node. The current text node can
-							// then be deleted, since its content is displayed
-							// using the newly created text nodes.
+						    // Step 5:
+						    // The newly created text nodes are inserted before
+						    // the current text node. The current text node can
+						    // then be deleted, since its content is displayed
+						    // using the newly created text nodes.
 
-							// For internal and temporary calls, no parent can
-							// exist.
-							if (selector.parentNode === null)
-								return;
+						    // For internal and temporary calls, no parent can
+						    // exist.
+						    if (selector.parentNode === null)
+						        return;
 
-							// The new text nodes are inserted before the
-							// current element one.
-							words.forEach((node) =>
-								selector.parentNode.insertBefore(node, selector));
+						    // The new text nodes are inserted before the
+						    // current element one.
+						    words.forEach((node) =>
+						        selector.parentNode.insertBefore(node, selector));
 
-							// The current element will be removed.
-							selector.parentNode.removeChild(selector);
+						    // The current element will be removed.
+						    selector.parentNode.removeChild(selector);
 
-							return;
+						    return;
 						}
 
 						// If the text content contains empty expressions, these
@@ -3042,25 +3209,25 @@ compliant("window.location.combine", (...paths) =>
 					return;
 				}
 
+				if (!(selector instanceof Element))
+					return;
+
 				// Only composites are mounted based on their model. This
 				// excludes markers of conditions as text nodes.
-				if (selector instanceof Element
-						&& object.attributes.hasOwnProperty(Composite.ATTRIBUTE_COMPOSITE)) {
+				if (object.attributes.hasOwnProperty(Composite.ATTRIBUTE_COMPOSITE)) {
 					const locate = _mount_locate(selector);
-					if (!locate.namespace)
-						locate.namespace = [];
-					locate.namespace.push(locate.model);
-					let model = locate.namespace.join(".");
+					let model = (locate.namespace || []).concat(locate.model).join(".");
 					if (!_models.has(model)) {
 						_models.add(model);
 						model = Object.lookup(model);
-						if (model && typeof model.dock === "function")
-							model.dock.call(model);
+						if (model && typeof model.dock === "function") {
+						    const meta = _mount_lookup(selector);
+						    Composite.fire(Composite.EVENT_MODULE_DOCK, meta);
+						    model.dock.call(model);
+						    Composite.fire(Composite.EVENT_MODULE_READY, meta);
+						}
 					}
 				}
-
-				if (!(selector instanceof Element))
-					return;
 
 				// The attributes ATTRIBUTE_EVENTS, ATTRIBUTE_VALIDATE and
 				// ATTRIBUTE_RENDER are processed in Composite.mount(selector)
@@ -3095,7 +3262,7 @@ compliant("window.location.combine", (...paths) =>
 						delete object.attributes[Composite.ATTRIBUTE_IMPORT];
 
 					} else if (value instanceof Element
-							|| value instanceof NodeList) {
+						    || value instanceof NodeList) {
 						selector.appendChild(value, true);
 						delete object.attributes[Composite.ATTRIBUTE_IMPORT];
 
@@ -3117,25 +3284,25 @@ compliant("window.location.combine", (...paths) =>
 
 					} else {
 						Composite.asynchron((selector, lock, url) => {
-							try {
-								const request = new XMLHttpRequest();
-								request.overrideMimeType("text/plain");
-								request.open("GET", url, false);
-								request.send();
-								if (request.status !== 200)
-									throw new Error(`HTTP status ${request.status} for ${request.responseURL}`);
-								const content = request.responseText.trim();
-								_render_cache[request.responseURL] = content;
-								selector.innerHTML = content;
-								const serial = selector.ordinal();
-								const object = _render_meta[serial];
-								delete object.attributes[Composite.ATTRIBUTE_IMPORT];
-							} catch (error) {
-								Composite.fire(Composite.EVENT_HTTP_ERROR, error);
-								throw error;
-							} finally {
-								lock.release();
-							}
+						    try {
+						        const request = new XMLHttpRequest();
+						        request.overrideMimeType("text/plain");
+						        request.open("GET", url, false);
+						        request.send();
+						        if (request.status !== 200)
+						            throw new Error(`HTTP status ${request.status} for ${request.responseURL}`);
+						        const content = request.responseText.trim();
+						        _render_cache[request.responseURL] = content;
+						        selector.innerHTML = content;
+						        const serial = selector.ordinal();
+						        const object = _render_meta[serial];
+						        delete object.attributes[Composite.ATTRIBUTE_IMPORT];
+						    } catch (error) {
+						        Composite.fire(Composite.EVENT_HTTP_ERROR, error);
+						        throw error;
+						    } finally {
+						        lock.release();
+						    }
 						}, selector, lock.share(), value);
 					}
 				}
@@ -3163,9 +3330,8 @@ compliant("window.location.combine", (...paths) =>
 					} else if (value instanceof Node)
 						selector.appendChild(value.cloneNode(true), true);
 					else if (value instanceof NodeList)
-						Array.from(value).forEach(function(node, index) {
-							selector.appendChild(node.cloneNode(true), index === 0);
-						});
+						Array.from(value).forEach((node, index) =>
+						    selector.appendChild(node.cloneNode(true), index === 0));
 					else selector.innerHTML = String(value);
 				}
 
@@ -3184,8 +3350,8 @@ compliant("window.location.combine", (...paths) =>
 					interval = Number.parseInt(interval);
 					object.interval = window.setInterval(() => {
 						if (!document.body.contains(selector)) {
-							window.clearInterval(object.interval);
-							delete object.interval;
+						    window.clearInterval(object.interval);
+						    delete object.interval;
 						} else Composite.render(selector);
 					}, interval);
 				}
@@ -3202,7 +3368,12 @@ compliant("window.location.combine", (...paths) =>
 				// 2. A global variable is required for the iteration. If this
 				//    variable already exists, the existing variable is saved
 				//    and restored at the end of the iteration.
-				// 3. Variable with meta information about the iteration is used
+				// 3. The variable with the partial meta-object is added at th
+				//    beginning of each iteration block as a value expression,
+				//    so that no problems with the temporary variable occur
+				//    later during partial rendering. This way the block keeps th
+				//    meta information it is built on.
+				// 4. Variable with meta information about the iteration is used
 				//    within the iteration:
 				//    e.g iterate={{tempA:Model.list}}
 				//            -> tempA = {item, index, data}
@@ -3212,60 +3383,60 @@ compliant("window.location.combine", (...paths) =>
 						const iterate = String(object.attributes[Composite.ATTRIBUTE_ITERATE] || "").trim();
 						const match = iterate.match(Composite.PATTERN_EXPRESSION_VARIABLE);
 						if (!match)
-							throw new Error(`Invalid iterate${iterate ? ": " + iterate : ""}`);
+						    throw new Error(`Invalid iterate${iterate ? ": " + iterate : ""}`);
 						object.iterate = {name:match[1].trim(), expression:"{{" + match[2].trim() + "}}"};
 						object.template = selector.cloneNode(true);
+						selector.innerHTML = "";
 					}
 
-					// A temporary global variable is required for the
-					// iteration. If this variable already exists, the existing
-					// is cached and restored at the end of the iteration.
-					const variable = window[object.iterate.name];
-					try {
+					const context = serial + ":" + Composite.ATTRIBUTE_ITERATE;
+					let iterate = Expression.eval(context, object.iterate.expression);
+					if (iterate instanceof Error)
+						throw iterate;
+					if (iterate) {
+						if (iterate instanceof XPathResult) {
+						    const meta = {entry: null, array: [], iterate};
+						    while (meta.entry = meta.iterate.iterateNext())
+						        meta.array.push(meta.entry);
+						    iterate = meta.array;
+						} else iterate = Array.from(iterate);
+
 						selector.innerHTML = "";
-						const context = serial + ":" + Composite.ATTRIBUTE_ITERATE;
-						let iterate = Expression.eval(context, object.iterate.expression);
-						if (iterate) {
-							if (iterate instanceof XPathResult) {
-								const meta = {entry: null, array: [], iterate};
-								while (meta.entry = meta.iterate.iterateNext())
-									meta.array.push(meta.entry);
-								iterate = meta.array;
-							} else iterate = Array.from(iterate);
-							iterate.forEach((item, index, array) => {
-								const meta = {};
-								Object.defineProperty(meta, "item", {
-									value: item,
-									enumerable: true
-								});
-								Object.defineProperty(meta, "index", {
-									value: index,
-									enumerable: true
-								});
-								Object.defineProperty(meta, "data", {
-									value: array,
-									enumerable: true
-								});
-								window[object.iterate.name] = meta;
-								// For whatever reason, if forEach is used on
-								// the NodeList, each time it is appended to the
-								// DOM, the elements are removed from the
-								// NodeList piece by piece.
-								Array.from(object.template.cloneNode(true).childNodes).forEach(node => {
-									selector.appendChild(node);
-									Composite.render(node, lock.share());
-								});
-							});
-						}
-					} finally {
-						// If necessary, restore the temporary variable.
-						delete window[object.iterate.name];
-						if (variable !== undefined)
-							window[object.iterate.name] = variable;
+
+						iterate.forEach((item, index, array) => {
+						    const meta = {};
+						    Object.defineProperty(meta, "item", {
+						        enumerable:true, value:item
+						    });
+						    Object.defineProperty(meta, "index", {
+						        enumerable:true, value:index
+						    });
+						    Object.defineProperty(meta, "data", {
+						        enumerable:true, value:array
+						    });
+
+						    // Creation of the stack with the temporary
+						    // variables for the script context / page scope.
+						    _render_context_stack.push({[object.iterate.name]:meta});
+
+						    // For whatever reason, if forEach is used on the
+						    // NodeList, each time it is appended to the DOM the
+						    // elements are removed from the NodeList piece by
+						    // piece.
+						    Array.from(object.template.cloneNode(true).childNodes).forEach(node => {
+						        selector.appendChild(node);
+						        Composite.render(node, lock.share());
+						    });
+
+						    // Clean up of the stack with the temporary
+						    // variables for the script context / page scope.
+						    _render_context_stack.pop();
+						});
 					}
-					// The content is finally rendered, the enclosing
-					// container element itself, or more precisely the
-					// attributes, still needs to be updated.
+
+					// The content is finally rendered, the enclosing container
+					// element itself, or more precisely the attributes, still
+					// needs to be updated.
 				}
 
 				// EXPRESSION: The expression in the attributes is interpreted.
@@ -3278,19 +3449,19 @@ compliant("window.location.combine", (...paths) =>
 					const attributes = [];
 					for (const key in object.attributes)
 						if (object.attributes.hasOwnProperty(key))
-							attributes.push(key);
+						    attributes.push(key);
 					if (Composite.ATTRIBUTE_VALUE in selector
-							&& object.attributes.hasOwnProperty(Composite.ATTRIBUTE_VALUE)
-							&& !attributes.includes(Composite.ATTRIBUTE_VALUE))
+						    && object.attributes.hasOwnProperty(Composite.ATTRIBUTE_VALUE)
+						    && !attributes.includes(Composite.ATTRIBUTE_VALUE))
 						attributes.push(Composite.ATTRIBUTE_VALUE);
 					attributes.forEach((attribute) => {
 						// Ignore all internal attributes
 						if (attribute.match(Composite.PATTERN_ATTRIBUTE_ACCEPT)
-								&& !attribute.match(Composite.PATTERN_ATTRIBUTE_STATIC))
-							return;
+						        && !attribute.match(Composite.PATTERN_ATTRIBUTE_STATIC))
+						    return;
 						let value = String(object.attributes[attribute] || "");
 						if (!value.match(Composite.PATTERN_EXPRESSION_CONTAINS))
-							return;
+						    return;
 						const context = serial + ":" + attribute;
 						value = Expression.eval(context, value);
 						// If the type value is undefined, the attribute is
@@ -3299,31 +3470,34 @@ compliant("window.location.combine", (...paths) =>
 						// the next render cycle and possibly inserted again if
 						// the expression returns a return value.
 						if (value !== undefined) {
-							value = String(value).encodeHtml();
-							value = value.replace(/"/g, "&quot;");
-							// Special case attribute value, here primarily the
-							// value of the property must be set, the value of
-							// the attribute is optional. Changing the value
-							// does not trigger an event, so no unwanted
-							// recursions occur.
-							if (attribute.toLowerCase() === Composite.ATTRIBUTE_VALUE
-									&& Composite.ATTRIBUTE_VALUE in selector)
-								selector.value = value;
-							// @-ATTRIBUTE: These are attribute templates for
-							// the renderer, which inserts attributes of the
-							// same name to them without @. This feature can be
-							// applied to all non-composite relevant attributes
-							// and avoids that attributes are misinterpreted by
-							// the browser before rendering, e.g. if the value
-							// uses the expression language. Attributes created
-							// from templates behave like other attributes,
-							// which includes updating by the renderer.
-							if (attribute.startsWith("@")) {
-								selector.removeAttribute(attribute);
-								attribute = attribute.replace(/^@+/, "");
-							}
-							selector.setAttribute(attribute, value);
+						    value = String(value).encodeHtml();
+						    value = value.replace(/"/g, "&quot;");
+						    // Special case attribute value, here primarily the
+						    // value of the property must be set, the value of
+						    // the attribute is optional. Changing the value
+						    // does not trigger an event, so no unwanted
+						    // recursions occur.
+						    if (attribute.toLowerCase() === Composite.ATTRIBUTE_VALUE
+						            && Composite.ATTRIBUTE_VALUE in selector)
+						        selector.value = value;
+						    // @-ATTRIBUTE: These are attribute templates for
+						    // the renderer, which inserts attributes of the
+						    // same name to them without @. This feature can be
+						    // applied to all non-composite relevant attributes
+						    // and avoids that attributes are misinterpreted by
+						    // the browser before rendering, e.g. if the value
+						    // uses the expression language. Attributes created
+						    // from templates behave like other attributes,
+						    // which includes updating by the renderer.
+						    if (attribute.startsWith("@")) {
+						        selector.removeAttribute(attribute);
+						        attribute = attribute.replace(/^@+/, "");
+						    }
+						    selector.setAttribute(attribute, value);
 						} else selector.removeAttribute(attribute);
+						selector[attribute] = value;
+						// Attribute values must also be set in the JavaScript
+						// so that it remains synchronized with the DOM!
 					});
 				}
 
@@ -3343,7 +3517,7 @@ compliant("window.location.combine", (...paths) =>
 					if (type.match(Composite.PATTERN_COMPOSITE_SCRIPT)) {
 						try {Scripting.eval(selector.textContent);
 						} catch (error) {
-							throw new Error("Composite JavaScript", error);
+						    throw new Error("Composite JavaScript", error);
 						}
 					}
 				}
@@ -3357,13 +3531,13 @@ compliant("window.location.combine", (...paths) =>
 				// This is intercepted by the MutationObserver.
 				if (selector.childNodes
 						&& !selector.nodeName.match(Composite.PATTERN_ELEMENT_IGNORE)
-						&& !(object.attributes.hasOwnProperty(Composite.ATTRIBUTE_ITERATE))) {
+						&& !object.attributes.hasOwnProperty(Composite.ATTRIBUTE_ITERATE)) {
 					Array.from(selector.childNodes).forEach((node) => {
 						// The rendering is recursive, if necessary the node is
 						// then no longer available. For example, if a condition
 						// is replaced by the marker.
 						if (!selector.contains(node))
-							return;
+						    return;
 						Composite.render(node, lock.share());
 					});
 				}
@@ -3372,6 +3546,7 @@ compliant("window.location.combine", (...paths) =>
 					selector.removeAttribute(Composite.ATTRIBUTE_RELEASE);
 
 			} catch (error) {
+
 				console.error(error);
 				Composite.fire(Composite.EVENT_ERROR, error);
 				if (origin instanceof Element)
@@ -3380,9 +3555,14 @@ compliant("window.location.combine", (...paths) =>
 
 			} finally {
 
-				// The queue is used to prevent elements from being registered for
-				// update multiple times during a render cycle when a lock exists.
-				// When the selector is rendered, any queued jobs are removed.
+				// At the end of the rendering of an element, the temporary
+				// context must be reset/cleaned.
+				_render_context_workspace.length = 0;
+
+				// The queue is used to prevent elements from being registered
+				// for update multiple times during a render cycle when a lock
+				// exists. When the selector is rendered, any queued jobs are
+				// removed.
 				Composite.render.queue = Composite.render.queue.filter(entry => entry !== origin);
 
 				lock.release();
@@ -3391,9 +3571,12 @@ compliant("window.location.combine", (...paths) =>
 
 		/**
 		 * Loads a resource (JS, CSS, HTML are supported).
-		 * @param  resource
-		 * @param  strict
-		 * @return the content when loading a HTML resource
+		 * @param {string} resource Path to the resource
+		 * @param {boolean} strict Flag to enforce strict loading
+		 * @returns {string|undefined} The content when loading an HTML resource
+		 * @throws {Error} In the following cases
+		 *     - Unsupported resource type
+		 *     - HTTP status other than 200 or 404 (with strict)
 		 */
 		load(resource, strict) {
 
@@ -3404,7 +3587,7 @@ compliant("window.location.combine", (...paths) =>
 			const normalize = (path) => {
 				const anchor = document.createElement("a");
 				anchor.href = path;
-				return anchor.pathname.replaceAll(/\/{2,}/g, "/");
+				return anchor.pathname.replace(/\/{2,}/g, "/");
 			};
 
 			// JS and CSS are loaded only once
@@ -3492,14 +3675,17 @@ compliant("window.location.combine", (...paths) =>
 		 * - JavaScript is loaded only if no corresponding JavaScript model
 		 *   exists
 		 *
-		 * @param composite
+		 * @param {Element|string} composite DOM element or a string
+		 * @throws {TypeError} In case of invalid composite
+		 * @throws {Error} In case of unknown composites and a composites
+		 *     without ID
 		 */
 		include(...composite) {
 
 			if (composite.length <= 0
 					|| (composite.length === 1
-							&& !(composite[0] instanceof Element)
-							&& typeof composite[0] !== "string"))
+						    && !(composite[0] instanceof Element)
+						    && typeof composite[0] !== "string"))
 				throw new TypeError("Invalid composite for include");
 			if (composite.length === 1
 					&& composite[0] instanceof Element)
@@ -3538,63 +3724,71 @@ compliant("window.location.combine", (...paths) =>
 
 			const lookup = Object.lookup(resource.join("."));
 
-			// If the module has already been loaded, it is only necessary to
-			// check whether the markup must be inserted. CSS should already
-			// exist in the head and the JavaScript will only be executed once.
-			if (_render_cache[context + ".composite"] !== undefined) {
-				if (_render_cache[context + ".html"] !== undefined) {
-					if (object && !object.attributes.hasOwnProperty(Composite.ATTRIBUTE_IMPORT)
-							&& !object.attributes.hasOwnProperty(Composite.ATTRIBUTE_OUTPUT)
-							&& !composite.innerHTML.trim()) {
-						_recursion_detection(composite);
-						if (composite instanceof Element)
-							composite.innerHTML = _render_cache[context + ".html"];
-					}
-				}
-				return;
-			}
-
 			resource = resource.join("/");
+
+			// Was the module already loaded?
+			// Initially EVENT_MODULE_LOAD is triggered.
 			if (_render_cache[context + ".composite"] === undefined)
-				Composite.fire(Composite.EVENT_MODUL_LOAD, composite, resource);
+				Composite.fire(Composite.EVENT_MODULE_LOAD, composite, resource);
 			_render_cache[context + ".composite"] = null;
 
 			// The sequence of loading is strictly defined: JS, CSS, HTML
 
 			// JavaScript is only loaded if no corresponding object exists for
-			// the composite id or the object is an element object
+			// the Composite ID or the object is an element object
 			if (lookup === undefined
 					|| lookup instanceof Element
 					|| lookup instanceof HTMLCollection
 					|| resource === "common")
 				this.load(context + ".js");
 
-			// CSS and HTML are loaded only if they are resources to an element
-			// and the element is empty, excludes CSS for common. Since CSS
-			// resources are loaded only once, common.css can be requested again
-			// later.
+			// CSS and HTML are loaded once and only if they are resources to an
+			// element and the element is empty, excludes CSS for common.
 			if (resource === "common")
 				this.load(context + ".css");
 
-			// CSS and HTML/Markup is only loaded if it is a known composite
+			// CSS and HTML/markup is only loaded if it is a known composite
 			// object and the element does not contain a markup (inner HTML).
 			// For inserting HTML/markup ATTRIBUTE_IMPORT and ATTRIBUTE_OUTPUT
 			// must not be set. It is assumed that an empty component/elements
 			// outsourced markup exists.
-			if (!object
-					|| composite.innerHTML.trim())
-				return;
-			this.load(context + ".css");
-			if (object.attributes.hasOwnProperty(Composite.ATTRIBUTE_IMPORT)
-					|| object.attributes.hasOwnProperty(Composite.ATTRIBUTE_OUTPUT))
-				return;
-			const content = this.load(context + ".html");
-			if (content === undefined)
-				return;
-			_recursion_detection(composite);
-			if (composite instanceof Element)
-				composite.innerHTML = content;
+			if (composite instanceof Element
+					&& !composite.innerHTML.trim())
+				this.load(context + ".css");
+
+			// Is only required if the composite has no content and will not be
+			// filled with the attributes ATTRIBUTE_IMPORT and ATTRIBUTE_OUTPUT.
+			if (composite instanceof Element
+					&& !composite.innerHTML.trim()
+					&& !object.attributes.hasOwnProperty(Composite.ATTRIBUTE_IMPORT)
+					&& !object.attributes.hasOwnProperty(Composite.ATTRIBUTE_OUTPUT)) {
+				const content = this.load(context + ".html");
+				if (content === undefined)
+					return;
+				_recursion_detection(composite);
+				if (composite instanceof Element)
+					composite.innerHTML = content;
+			}
 		}
+	});
+
+	/**
+	 * The render function gets a getter for the context, which returns all
+	 * variables for the page scope. The return value is an object that contains
+	 * the persistent and dynamic/temporary variables for the scope page.
+	 */
+	Object.defineProperty(Composite.render, "context", {
+		get: () => {
+			const scope = Array.from(_render_context_scope);
+			_render_context_workspace.forEach(object => {
+				Object.keys(object).forEach(key => {
+					scope[key] = object[key];
+				});
+			});
+			return scope;
+		},
+		configurable: false,
+		enumerable: true
 	});
 
 	/**
@@ -3615,7 +3809,7 @@ compliant("window.location.combine", (...paths) =>
 	 *     type          width
 	 *
 	 * The following attributes are automatically hardened:
-	 *     COMPOSITE     ID                STATIC*
+	 *     COMPOSITE     ID				STATIC*
 	 *
 	 * Composite internal/relevant attributes are also protected, these are
 	 * removed in markup and managed in memory:
@@ -3632,8 +3826,8 @@ compliant("window.location.combine", (...paths) =>
 	/** Map for custom selectors (key:hash, value:{selector, function}) */
 	const _selectors = new Map();
 
-	/** Set with acceptor and their registered listeners */
-	const _acceptors = new Set();
+	/** Set with interceptor and their registered listeners */
+	const _interceptors = new Set();
 
 	/** Map with events and their registered listeners */
 	const _listeners = new Map();
@@ -3661,9 +3855,9 @@ compliant("window.location.combine", (...paths) =>
 	}
 
 	/**
-	 * Determines the meta data for an element based on its position in the DOM
-	 * with the corresponding model, the referenced route and target. The meta
-	 * data is only determined as text information.
+	 * Determines the metadata for an element based on its position in the DOM
+	 * with the corresponding model, the referenced route and target. The
+	 * metadata is only determined as text information.
 	 *
 	 * Composite:
 	 *     {namespace, model}
@@ -3691,11 +3885,10 @@ compliant("window.location.combine", (...paths) =>
 	 * If no meta information can be determined, e.g. because no IDs were found
 	 * or no enclosing composite was used, null is returned.
 	 *
-	 * @param  element
-	 * @return determined meta-object for the passed element, otherwise null
-	 * @throws An error occurs in the following cases:
-	 *     - in the case of an invalid composite ID
-	 *     - in the case of an invalid element ID
+	 * @param {Element} element DOM element to determine metadata for
+	 * @returns {object|null} Determined meta-object for the passed element,
+	 *     otherwise null
+	 * @throws {Error} In case of an invalid IDs for composites and elements
 	 */
 	const _mount_locate = (element) => {
 
@@ -3737,12 +3930,12 @@ compliant("window.location.combine", (...paths) =>
 
 		serial = serial.match(Composite.PATTERN_ELEMENT_ID);
 		if (serial[4]) {
-			meta.namespace = serial[4].substring(1).split(/:/);
+			meta.namespace = serial[4].split(/:/);
 			meta.route = [meta.namespace[meta.namespace.length -1]];
 		}
 		meta.route.push(serial[1]);
 		if (serial[2])
-			meta.route.push(...serial[2].substring(1).split(/:/));
+			meta.route.push(...serial[2].split(/:/));
 		if (serial[3])
 			meta.unique = serial[3];
 		meta.target = meta.route[meta.route.length -1];
@@ -3769,11 +3962,10 @@ compliant("window.location.combine", (...paths) =>
 	 * an element with a valid element ID in a valid enclosing composite,
 	 * otherwise the method will return null.
 	 *
-	 * @param  element
-	 * @return determined meta-object for the passed element, otherwise null
-	 * @throws An error occurs in the following cases:
-	 *     - in the case of an invalid composite ID
-	 *     - in the case of an invalid element ID
+	 * @param {Element} element DOM element to determine metadata for
+	 * @returns {object|null} Determined meta-object for the passed element,
+	 *     otherwise null
+	 * @throws {Error} In case of an invalid IDs for composites and elements
 	 */
 	const _mount_lookup = (element) => {
 
@@ -3814,7 +4006,7 @@ compliant("window.location.combine", (...paths) =>
 	const _render_cache = {};
 
 	/**
-	 * Associative array for element-related meta objects, those which are
+	 * Associative array for element-related meta-objects, those which are
 	 * created during rendering: (key:serial, value:meta)
 	 */
 	const _render_meta = [];
@@ -3841,15 +4033,17 @@ compliant("window.location.combine", (...paths) =>
 	 * Enhancement of the JavaScript API
 	 * Adds a static function to create and use a namespace for an object.
 	 * Without arguments, the method returns the global namespace window.
+	 *
 	 * The method has the following various signatures:
 	 *     Object.use();
 	 *     Object.use(string);
 	 *     Object.use(string, ...string|number);
 	 *     Object.use(object);
 	 *     Object.use(object, ...string|number);
-	 * @param  levels of the namespace
-	 * @return the created or already existing object(-level)
-	 * @throws An error occurs in case of invalid data types or syntax
+	 *
+	 * @param {...(string|number|object)} levels Levels of the namespace
+	 * @returns {object} The created or already existing object(-level)
+	 * @throws {Error} In case of invalid data types or syntax
 	 */
 	compliant("Object.use", (...levels) =>
 		Namespace.use.apply(null, levels));
@@ -3858,15 +4052,17 @@ compliant("window.location.combine", (...paths) =>
 	 * Enhancement of the JavaScript API
 	 * Adds a static function to determine an object via the namespace.
 	 * Without arguments, the method returns the global namespace window.
+	 *
 	 * The method has the following various signatures:
 	 *     Object.lookup();
 	 *     Object.lookup(string);
 	 *     Object.lookup(string, ...string|number);
 	 *     Object.lookup(object);
 	 *     Object.lookup(object, ...string|number);
-	 * @param  levels of the namespace
-	 * @return the determined object(-level)
-	 * @throws An error occurs in case of invalid data types or syntax
+	 *
+	 * @param {...(string|number|object)} levels Levels of the namespace
+	 * @returns {object} The determined object(-level)
+	 * @throws {Error} In case of invalid data types or syntax
 	 */
 	compliant("Object.lookup", (...levels) =>
 		Namespace.lookup.apply(null, levels));
@@ -3877,15 +4073,17 @@ compliant("window.location.combine", (...paths) =>
 	 * In difference to the namespace function of the same name, qualifiers are
 	 * also supported in the namespace. The effect is the same. Qualifiers are
 	 * optional namespace elements at the end that use the colon as a separator.
+	 *
 	 * The method has the following various signatures:
 	 *     Object.exists();
 	 *     Object.exists(string);
 	 *     Object.exists(string, ...string|number);
 	 *     Object.exists(object);
 	 *     Object.exists(object, ...string|number);
-	 * @param  levels of the namespace
-	 * @return true if the namespace exists
-	 * @throws An error occurs in case of invalid data types or syntax
+	 *
+	 * @param {...(string|number|object)} levels Levels of the namespace
+	 * @returns {boolean} True if the namespace exists
+	 * @throws {Error} In case of invalid data types or syntax
 	 */
 	compliant("Object.exists", (...levels) =>
 		Namespace.exists.apply(null, levels));
@@ -3893,8 +4091,8 @@ compliant("window.location.combine", (...paths) =>
 	/**
 	 * Enhancement of the JavaScript API
 	 * Adds a static function to checks that an object is not undefined / null.
-	 * @param  object
-	 * @return true is neither undefined nor null
+	 * @param {*} object Object to be checked
+	 * @returns {boolean} True if the object is neither undefined nor null
 	 */
 	compliant("Object.usable", (object) =>
 		object !== undefined && object !== null);
@@ -3972,9 +4170,47 @@ compliant("window.location.combine", (...paths) =>
 		// Initially the common-module is loaded.
 		// The common-module is similar to an autostart, it is used to
 		// initialize the single page application. It consists of common.js and
-		// common.css. The configuration of the SiteMap and essential styles
+		// common.css. The configuration of the Routing and essential styles
 		// can/should be stored here.
 		Composite.include("common");
+
+		const _cleanup = (node) => {
+			// Clean up all the child elements first.
+			if (node.childNodes)
+				Array.from(node.childNodes).forEach((node) =>
+					_cleanup(node));
+
+			// Composites and models must be undocked when they are removed from
+			// the DOM independent of whether a condition exists. For composites
+			// with condition, it must be noted that the composite is initially
+			// replaced by a marker. During replacement, the initial composite
+			// is removed, which can cause an unwanted undocking. The logic is
+			// based on the assumption that each composite has a meta-object.
+			// When replacing a composite, the corresponding meta-object is also
+			// deleted, so that the MutationObserver detects the composite to be
+			// removed in the DOM, but undocking is not performed without the
+			// matching meta-object.
+
+			const serial = node.ordinal();
+			const object = _render_meta[serial];
+			if (object && object.attributes.hasOwnProperty(Composite.ATTRIBUTE_COMPOSITE)) {
+				const meta = _mount_lookup(node);
+				if (meta && meta.meta && meta.meta.model && meta.model) {
+					const model = (meta.meta.namespace || []).concat(meta.meta.model).join(".");
+					if (_models.has(model)) {
+						_models.delete(model);
+						if (typeof meta.model.undock === "function") {
+						    meta.model.undock.call(meta.model);
+						    Composite.fire(Composite.EVENT_MODULE_UNDOCK, meta);
+						}
+					}
+				}
+			}
+
+			// meta-object assigned to the element must be deleted, because it
+			// is an indicator for existence and presence of composites/models
+			delete _render_meta[node.ordinal()];
+		};
 
 		(new MutationObserver((records) => {
 			records.forEach((record) => {
@@ -3992,9 +4228,9 @@ compliant("window.location.combine", (...paths) =>
 					if (attribute.match(/^(autofocus|disabled|hidden|multiple|readonly|required)$/i)) {
 						const value = String(record.target.getAttribute(attribute));
 						if (value === "false")
-							record.target.removeAttribute(attribute)
+						    record.target.removeAttribute(attribute)
 						if (value === "true")
-							record.target.setAttribute(attribute, attribute);
+						    record.target.setAttribute(attribute, attribute);
 					}
 				}
 
@@ -4014,7 +4250,7 @@ compliant("window.location.combine", (...paths) =>
 					if (object && object.hasOwnProperty(Composite.ATTRIBUTE_VALUE)) {
 						const value = object.value === undefined ? "" : String(object.value);
 						if (value !== record.target.textContent)
-							record.target.textContent = value;
+						    record.target.textContent = value;
 					}
 					return;
 				}
@@ -4024,41 +4260,41 @@ compliant("window.location.combine", (...paths) =>
 				if (object && record.type === "attributes") {
 					const attribute = (record.attributeName || "").toLowerCase().trim();
 					if (attribute.match(Composite.PATTERN_ATTRIBUTE_ACCEPT)
-							&& !attribute.match(Composite.PATTERN_ATTRIBUTE_STATIC)) {
+						    && !attribute.match(Composite.PATTERN_ATTRIBUTE_STATIC)) {
 						// Composite internal non-static attributes are managed
 						// by the renderer and are removed.
 						if (record.target.hasAttribute(attribute))
-							record.target.removeAttribute(attribute);
+						    record.target.removeAttribute(attribute);
 					} else if (attribute.match(Composite.PATTERN_ATTRIBUTE_STATIC)) {
 						if (!object.attributes.hasOwnProperty(attribute)) {
-							// If the renderer has not registered an initial
-							// value, the assumption is that the attribute was
-							// subsequently added and is therefore removed.
-							if (record.target.hasAttribute(attribute))
-								record.target.removeAttribute(attribute);
+						    // If the renderer has not registered an initial
+						    // value, the assumption is that the attribute was
+						    // subsequently added and is therefore removed.
+						    if (record.target.hasAttribute(attribute))
+						        record.target.removeAttribute(attribute);
 						} else {
-							// If the attribute was removed or the value was
-							// changed, the initial value is restored that was
-							// previously determined by the renderer.
-							if (!record.target.hasAttribute(attribute)
-									|| object.attributes[attribute] !== record.target.getAttribute(attribute))
-								record.target.setAttribute(attribute, object.attributes[attribute]);
+						    // If the attribute was removed or the value was
+						    // changed, the initial value is restored that was
+						    // previously determined by the renderer.
+						    if (!record.target.hasAttribute(attribute)
+						            || object.attributes[attribute] !== record.target.getAttribute(attribute))
+						        record.target.setAttribute(attribute, object.attributes[attribute]);
 						}
 					} else if (_statics.has(attribute)) {
 						object.statics = object.statics || {};
 						if (!object.statics.hasOwnProperty(attribute)) {
-							// If the renderer has not registered an initial
-							// value, the assumption is that the attribute was
-							// subsequently added and is therefore removed.
-							if (record.target.hasAttribute(attribute))
-								record.target.removeAttribute(attribute);
+						    // If the renderer has not registered an initial
+						    // value, the assumption is that the attribute was
+						    // subsequently added and is therefore removed.
+						    if (record.target.hasAttribute(attribute))
+						        record.target.removeAttribute(attribute);
 						} else {
-							// If the attribute was removed or the value was
-							// changed, the initial value is restored that was
-							// previously determined by the renderer.
-							if (!record.target.hasAttribute(attribute)
-									|| object.statics[attribute] !== record.target.getAttribute(attribute))
-								record.target.setAttribute(attribute, object.statics[attribute]);
+						    // If the attribute was removed or the value was
+						    // changed, the initial value is restored that was
+						    // previously determined by the renderer.
+						    if (!record.target.hasAttribute(attribute)
+						            || object.statics[attribute] !== record.target.getAttribute(attribute))
+						        record.target.setAttribute(attribute, object.statics[attribute]);
 						}
 					}
 				}
@@ -4076,59 +4312,19 @@ compliant("window.location.combine", (...paths) =>
 				// are then replaced by a marker in the case of a condition. The
 				// MutationObserver does not run parallel, so it is called after
 				// the rendering with obsolete nodes.
-				if (record.addedNodes) {
-					record.addedNodes.forEach((node) => {
-						if ((node instanceof Element
-								|| (node instanceof Node
-										&& node.nodeType === Node.TEXT_NODE))
-								&& !_render_meta[node.ordinal()]
-								&& document.body.contains(node))
-							Composite.render(node);
-					});
-				}
+				(record.addedNodes || []).forEach((node) => {
+					if ((node instanceof Element
+						    || (node instanceof Node
+						            && node.nodeType === Node.TEXT_NODE))
+						    && !_render_meta[node.ordinal()]
+						    && document.body.contains(node))
+						Composite.render(node);
+				});
 
 				// All removed elements are cleaned and if necessary the undock
 				// method is called if a view model binding exists.
-				if (record.removedNodes) {
-					record.removedNodes.forEach((node) => {
-						const cleanup = (node) => {
-							// Clean up all the child elements first.
-							if (node.childNodes) {
-								Array.from(node.childNodes).forEach((node) =>
-									cleanup(node));
-							}
-
-							// Composites/models must be undocked when they are
-							// removed from the DOM independent of whether a
-							// condition exists. For composites with condition,
-							// it must be noted that the composite is initially
-							// replaced by a marker. During replacement, the
-							// initial composite is removed, which can cause an
-							// unwanted undocking. Therefore, the logic is based
-							// on the assumption that each composite has a
-							// meta-object. When replacing the original
-							// composite, the corresponding meta-object is also
-							// deleted, so that the MutationObserver detects the
-							// composite to be removed in the DOM, but undocking
-							// is not performed without the matching meta-object.
-
-							const serial = node.ordinal();
-							const object = _render_meta[serial];
-							if (object && object.attributes.hasOwnProperty(Composite.ATTRIBUTE_COMPOSITE)) {
-								const meta = _mount_lookup(node);
-								if (meta && meta.meta && meta.meta.model && meta.model
-										&& _models.has(meta.meta.model)) {
-									_models.delete(meta.meta.model);
-									if (typeof meta.model.undock === "function")
-										meta.model.undock.call(meta.model);
-								}
-							}
-
-							delete _render_meta[node.ordinal()];
-						};
-						cleanup(node);
-					});
-				}
+				(record.removedNodes || []).forEach((node) =>
+					_cleanup(node));
 			});
 		})).observe(document.body, {childList:true, subtree:true, attributes:true, attributeOldValue:true, characterData:true});
 
@@ -4196,11 +4392,10 @@ compliant("window.location.combine", (...paths) =>
  * Extension for modules: These can also provide locales/messages in the module
  * directory, which are loaded in addition to the locales/messages from the data
  * directory -- even at runtime. Again, existing keys cannot be overwritten.
- *
- * @author  Seanox Software Solutions
- * @version 1.7.0 20230413
  */
 (() => {
+
+	"use strict";
 
 	compliant("messages", {});
 	compliant("Messages", {});
@@ -4268,7 +4463,7 @@ compliant("window.location.combine", (...paths) =>
 			&& DataSource.locales.includes(DataSource.locale))
 		DataSource.localize(DataSource.locale);
 
-	Composite.listen(Composite.EVENT_MODUL_LOAD, (event, context, module) => {
+	Composite.listen(Composite.EVENT_MODULE_LOAD, (event, context, module) => {
 		const request = new XMLHttpRequest();
 		request.open("GET", Composite.MODULES + "/" + module + ".xml", false);
 		request.send();
@@ -4276,7 +4471,7 @@ compliant("window.location.combine", (...paths) =>
 			return;
 		const data = new DOMParser().parseFromString(request.responseText,"application/xml");
 		_datasource.push(data);
-		_load(data)
+		_load(data);
    });
 })();
 
@@ -4305,30 +4500,35 @@ compliant("window.location.combine", (...paths) =>
  * bidirectionally. Managed these proxies are managed with a weak map where the
  * object is the key and the garbage collection can dispose of this objects with
  * associated proxies when not in use.
- *
- * @author  Seanox Software Solutions
- * @version 1.6.0 20230317
  */
 (() => {
 
+	"use strict";
+
 	compliant("Reactive", (object) => {
-		if (typeof object !== "object")
-			throw new TypeError("Not supported data type: " + typeof object);
-		if (object === "object")
-			throw new TypeError("Not supported data type: null");
+		if (object == null
+				|| typeof object !== "object")
+			throw new TypeError("Invalid object type");
 		return _reactive(object);
 	});
 
 	let _selector = null;
-
 	Composite.listen(Composite.EVENT_RENDER_START, (event, selector) =>
 		_selector = selector);
-
 	Composite.listen(Composite.EVENT_RENDER_NEXT, (event, selector) =>
 		_selector = selector);
-
 	Composite.listen(Composite.EVENT_RENDER_END, (event, selector) =>
 		_selector = null);
+
+	let _selector_cache = null;
+	Composite.listen(Composite.EVENT_MODULE_DOCK, (event, selector) => {
+		_selector_cache = _selector;
+		_selector = null;
+	});
+	Composite.listen(Composite.EVENT_MODULE_READY, (event, selector) => {
+		_selector = _selector_cache;
+		_selector_cache = null;
+	});
 
 	/**
 	 * Enhancement of the JavaScript API
@@ -4399,14 +4599,17 @@ compliant("window.location.combine", (...paths) =>
 					if (_selector) {
 						const descriptor = Object.getOwnPropertyDescriptor(target, key);
 						if (descriptor && typeof descriptor.get === "function")
-							value = descriptor.get.call(proxy);
+						    value = descriptor.get.call(proxy);
 						else value = target[key];
 					} else value = target[key];
 
 					// Proxies are only used for objects, other data types are
 					// returned directly.
 					if (typeof value !== "object"
-							|| value === null)
+						    || value === null
+						    || value instanceof Node
+						    || value instanceof NodeList
+						    || value instanceof HTMLCollection)
 						return value;
 
 					// Proxy remains proxy
@@ -4435,27 +4638,8 @@ compliant("window.location.combine", (...paths) =>
 						// Registration is performed only during rendering and
 						// if the key exists in the object.
 						if (selector === null
-								|| !target.hasOwnProperty(key))
-							return;
-
-						// Special for elements with attribute iterate. For
-						// these, the highest parent element with the attribute
-						// iterate is searched for and registered as the
-						// recipient. Why -- Iterate provides temporary
-						// variables which can be used in the enclosed markup.
-						// If these places are registered as recipients, these
-						// temporary variables cannot be accessed later in the
-						// expressions, which causes errors because the
-						// temporary variables no longer exist. Since element
-						// with the attribute iterate can be nested and the
-						// expression can be based on a parent one, the topmost
-						// one is searched for.
-
-						for (let node = selector; node.parentNode; node = node.parentNode) {
-							const meta = (Composite.render.meta || [])[node.ordinal()] || {};
-							if (meta.attributes && meta.attributes.hasOwnProperty(Composite.ATTRIBUTE_ITERATE))
-								selector = node;
-						}
+						        || !target.hasOwnProperty(key))
+						    return;
 
 						const recipients = notifications.get(key) || new Map();
 
@@ -4463,28 +4647,28 @@ compliant("window.location.combine", (...paths) =>
 						// already registered as a recipient, then the
 						// registration can be canceled.
 						if (recipients.has(selector.ordinal()))
-							return;
+						    return;
 
 						for (const recipient of recipients.values()) {
 
-							// If the selector as the current rendered element
-							// is already contained in a recipient as the
-							// parent, the selector as a recipient can be
-							// ignored, because the rendering is initiated by
-							// the parent and includes the selector as a child.
-							if (recipient.contains !== undefined
-									&& recipient.contains(selector))
-								return;
+						    // If the selector as the current rendered element
+						    // is already contained in a recipient as the
+						    // parent, the selector as a recipient can be
+						    // ignored, because the rendering is initiated by
+						    // the parent and includes the selector as a child.
+						    if (recipient.contains !== undefined
+						            && recipient.contains(selector))
+						        return;
 
-							// If the selector as current rendered element
-							// contains a recipient as parent, the recipient can
-							// be removed, because the selector element will
-							// initiate rendering as parent in the future and
-							// the existing recipient will be rendered as child
-							// automatically.
-							if (selector.contains !== undefined
-									&& selector.contains(recipient))
-								recipients.delete(recipient.ordinal());
+						    // If the selector as current rendered element
+						    // contains a recipient as parent, the recipient can
+						    // be removed, because the selector element will
+						    // initiate rendering as parent in the future and
+						    // the existing recipient will be rendered as child
+						    // automatically.
+						    if (selector.contains !== undefined
+						            && selector.contains(recipient))
+						        recipients.delete(recipient.ordinal());
 						}
 
 						recipients.set(selector.ordinal(), selector);
@@ -4495,6 +4679,14 @@ compliant("window.location.combine", (...paths) =>
 			},
 
 			set(target, key, value) {
+
+				// Proxy is implemented exotically, cannot be inherited and has
+				// no prototype. Therefore, this unconventional way with a
+				// secret simulated property that is used as an indicator for
+				// existing reactive object instances and also contains a
+				// reference to the original object and that can't be changed.
+				if (key === _secret)
+					return true;
 
 				// To decouple object, proxy and view, the original objects are
 				// always used as value and never the proxies.
@@ -4507,14 +4699,14 @@ compliant("window.location.combine", (...paths) =>
 				// objects immediately, but only when they are explicitly
 				// requested via getter.
 
-				try {return target[key] = value;
+				try {target[key] = value;
 				} finally {
 
 					// Unwanted recursions due to repeated value assignments:
 					// a = a / a = c = b = a must be avoided so that no infinite
 					// render cycle is initiated.
 					if (this.cache.get(key) === value)
-						return;
+						return true;
 					this.cache.set(key, value);
 
 					// The registration is delayed so that the setting of values
@@ -4525,18 +4717,20 @@ compliant("window.location.combine", (...paths) =>
 						// Recursions during rendering are prevented via the
 						// queue and the lock in during rendering.
 						if (!target.hasOwnProperty(key))
-							return;
+						    return;
 
 						const recipients = this.notifications.get(key) || new Map();
 						for (const recipient of recipients.values()) {
-							// If the recipient is no longer included in the DOM
-							// and so it can be removed this case.
-							if (!document.body.contains(recipient))
-								recipients.delete(recipient.ordinal());
-							else Composite.render(recipient);
+						    // If the recipient is no longer included in the DOM
+						    // and so it can be removed this case.
+						    if (!document.body.contains(recipient))
+						        recipients.delete(recipient.ordinal());
+						    else Composite.render(recipient);
 						}
 
 					}, _selector, target, key, this.notifications);
+
+					return true;
 				}
 			}
 		});
@@ -4550,1064 +4744,666 @@ compliant("window.location.combine", (...paths) =>
 })();
 
 /**
- * Test is a simple API and module to implement and execute integration tests.
- * The tests can be implemented as suites, scenarios and test cases.
+ * The presentation of the page can be organized in Seanox aspect-js in views,
+ * which are addressed via paths (routes). For this purpose, the routing
+ * supports a hierarchical directory structure based on the IDs of the nested
+ * composites in the markup. The routing then controls the visibility and
+ * permission for accessing the views via paths - the so-called view flow. For
+ * the view flow and the permission, the routing actively uses the DOM to insert
+ * and remove the views depending on the situation.
  *
  *
- *     Case
+ *     TERMS
  *     ----
- * The smallest and simplest element in an integration test, used here as task,
- * because case is a keyword. It can be implemented alone, but is always used in
- * a scenario.
  *
- *     Test.create({test() {
- *         Assert.assertTrue(true);
- *     }});
+ *         Page
+ *         ----
+ * In a single page application, the page is the elementary framework and
+ * runtime environment of the entire application.
  *
- *     Test.start();
+ *         View
+ *         ----
+ * A view is the primary projection of models/components/content. This
+ * projection can contain additional substructures in the form of views and
+ * sub-views. Views can be static, always shown, or controlled by path and
+ * permissions. Paths address the complete chain of nested views and shows the
+ * parent views in addition to the target view.
  *
+ *         View Flow
+ *         ----
+ * View flow describes the access control and the sequence of views. The routing
+ * provides interfaces, events, permission concepts and interceptors with which
+ * the view flow can be controlled and influenced.
  *
- *     Scenario
- *     ----
- * A scenario is a sequence of a lot of test cases usually in one file.
+ *         Paths
+ *         ----
+ * Paths are used for navigation, routing and controlling the view flow. The
+ * target can be a view or a function if using interceptors. For SPAs
+ * (Single-Page Applications), the anchor part of the URL is used for navigation
+ * and routes.
  *
- *     Test.create({test() {
- *         Assert.assertTrue(true);
- *     }});
+ * Similar to a file system, absolute and relative paths are also supported
+ * here. Paths consist of case-sensitive words that only use 7-bit ASCII
+ * characters above the space character. Characters outside this range are URL
+ * encoded. The words are separated by the hash character (#).
  *
- *     Test.create({name:"example", timeout:1000, test() {
- *         Assert.assertTrue(true);
- *     }});
- *
- *     Test.create({error:Error test() {
- *         throw new Error();
- *     }});
- *
- *     Test.create({error:/^My Error/i, test() {
- *         throw new Error("My Error");
- *     }});
- *
- *     Test.create({ignore:true, test() {
- *         Assert.assertTrue(true);
- *     }});
- *
- *     Test.start();
- *
- *
- *     Suite
- *     ----
- * A suite is a complex bundle of different test cases, scenarios and other
- * suites. Usually a suite consists of different files, which then represent a
- * complex test. In an ideal case, a suite is a cascade of different files where
- * the test can be started in any file and at any place. This makes it possible
- * to perform the integration test on different levels and with different
- * complexity.
- *
- *
- *     Assert
- *     ----
- * The test cases are implemented with assertions. The test module provides
- * elementary assertions, you can implement more. The function is simple. If an
- * assertion was not true, an error is thrown -- see as an example the
- * implementation here.
- *
- * The Test API is part of aspect-js but has to be activated deliberately,
- * otherwise it is not available.
- *
- *     Test.activate();
- *
- * This is necessary so that some enhancements to the JavaScript API that
- * are helpful for implementing test are not used productively. For example,
- * the redirection and caching of console output.
- *
- * @author  Seanox Software Solutions
- * @version 1.6.0 20230328
+ * Repeated use of the separator (#) allows jumps back in the path to be mapped.
+ * The number of repetitions indicates the number of returns in the direction of
+ * the root.
  */
-compliant("Test", {
+(() => {
+
+	"use strict";
+
+	// Status of the activation of routing
+	// The status cannot be changed again after (de)activation and is only set
+	// initially when the page is loaded.
+	let _routing_active = undefined;
+
+	// Map with all supported interceptors
+	const _interceptors = new Array();
+
+	// Array with the path history (optimized)
+	const _history = new Array();
+
+	const Browser = {
+
+		/**
+		 * Returns the current working path. This assumes that the URL contains
+		 * at least one hash, otherwise the method returns null.
+		 * @returns {string|null} the current path, otherwise null
+		 */
+		get location() {
+			if (window.location.hash !== "")
+				return window.location.hash;
+			return _locate(window.location.href);
+		}
+	}
+
+	const _locate = (location) => {
+		const match = location.match(/#.*$/);
+		return match ? match[0] : null;
+	}
+
+	compliant("Routing", {
+
+		/** Constant for attribute route */
+		get ATTRIBUTE_ROUTE() {return "route";},
+
+		/**
+		 * Returns the current working path normalized. This assumes that the
+		 * URL contains at least one hash, otherwise the method returns null.
+		 * @returns {string|null} the current path, otherwise null
+		 */
+		get location() {
+			let location = Browser.location;
+			if (location != null
+					&& (/^(#{2,}|[^#])/).test(location)) {
+				let parent = "#";
+				if (_history.length > 0)
+					parent = _history[_history.length -1];
+				return Path.normalize(parent, location);
+			}
+			return Path.normalize(location);
+		},
+
+		/**
+		 * Returns the current navigation history and automatically recognizes
+		 * when there are jumps back to previous destinations. In such cases,
+		 * all subsequent entries are removed to ensure that the history remains
+		 * consistent and up to date.
+		 * @returns {string[]} navigation history as array
+		 */
+		get history() {
+			return _history;
+		},
+
+		/**
+		 * Routes to the given path. In difference to the forward method, route
+		 * is not executed directly, instead the change is triggered
+		 * asynchronous by the location hash.
+		 * @param {string} path
+		 */
+		route(path) {
+			if (path === undefined
+					|| (typeof path !== "string"
+						    && path !== null))
+				throw new TypeError("Invalid data type");
+			path = Path.normalize(path);
+			if (path === null
+					|| path === Browser.location)
+				return;
+			Composite.asynchron((path) => {
+				window.location.href = path;
+			}, path);
+		},
+
+		/**
+		 * Forwards to the given path. In difference to the route method, the
+		 * forwarding is executed directly, instead the navigate method triggers
+		 * asynchronous forwarding by changing the location hash.
+		 * @param {string} path
+		 */
+		forward(path) {
+			if (path === undefined
+					|| (typeof path !== "string"
+						    && path !== null))
+				throw new TypeError("Invalid data type");
+			path = Path.normalize(path);
+			if (path === null
+					|| path === Browser.location)
+				return;
+			const event = new Event("hashchange",{bubbles:false, cancelable:true});
+			event.oldURL = Browser.location;
+			event.newURL = path;
+			window.dispatchEvent(event);
+		},
+
+		/**
+		 * Checks the approval to keep or remove the composite through the
+		 * routing in the DOM. For approval, the model corresponding to a
+		 * composite can implement the approve method, which can use different
+		 * return values: undefined, true and false.
+		 *
+		 * With the return values true and false, the permit method in the model
+		 * makes the decision. Otherwise and even if the model does not
+		 * implement a permit method, the decision is left to the routing, which
+		 * checks the coverage of the path from the composite. Covered means
+		 * that the specified path must be contained from the root of the
+		 * current working path.
+		 *
+		 * @param {string} path path of the composite
+		 * @param {string} composite composite ID of the element in the markup
+		 * @returns {boolean} true if the composite element is approved,
+		 *     otherwise false
+		 */
+		approve(path, composite) {
+
+			if (typeof path !== "string")
+				throw new TypeError("Invalid data type");
+			if (typeof composite !== "string")
+				throw new TypeError("Invalid data type");
+
+			path = Path.normalize(path);
+			if (path === null
+					|| path === "#")
+				return false;
+
+			composite = composite.match(Composite.PATTERN_COMPOSITE_ID);
+			if (!composite)
+				return false;
+
+			const model = (composite[1] || "").trim();
+			const namespace = (composite[2] || "").replace(/:/g, ".");
+			const scope = namespace.length > 0 ? namespace + "." + model : model;
+
+			const object = (function(context, namespace) {
+				return namespace.split('.').reduce(function(scope, target) {
+					return scope && scope[target];
+				}, context);
+			})(window, scope) || (Object.exists(scope) ? Object.use(scope) : undefined);
+
+			if (object == null
+					|| typeof object !== "object"
+					|| typeof object.permit !== "function")
+				return path !== undefined
+					&& Path.covers(path);
+			const approval = object.permit();
+			if (approval === undefined)
+				return path !== undefined
+					&& Path.covers(path);
+			return approval === true;
+		},
+
+		/**
+		 * Add an interceptor. An interceptor consists of a path and an actor.
+		 * The path can be either a string or a regular expression (RegExp),
+		 * and the actor must be a function. Interceptors are useful for
+		 * reacting to paths and possibly influencing the routing in relation to
+		 * the paths.
+		 * @param {string|RegExp} path path or route that needs customization.
+		 *     It can be a string or a regular expression.
+		 * @param {function} actor function that acts as an interceptor for the
+		 *     specified path when the specified path is addressed.
+		 * @throws {TypeError} If the `path` is neither a string nor a RegExp
+		 */
+		customize(path, actor) {
+			if (typeof path !== "string"
+					&& !(path instanceof RegExp))
+				throw new TypeError("Invalid data type");
+			if (actor == null
+					|| typeof actor !== "function")
+				throw new TypeError("Invalid object type");
+			_interceptors.push({path:path, actor:actor});
+		},
+
+		/**
+		 * Determines the closest matching location in relation to the closest
+		 * composite to the current location. If Routing is inactive, the method
+		 * will be returned undefined.
+		 * @param {(boolean|Object)} [meta=false] optional true or a metadata
+		 *     object to be filled; in both cases, a meta-object with locate
+		 *     and, if available, an array with data is also returned
+		 * @returns {string|undefined|Object} the resolved location if Routing
+		 *     is active; otherwise, returns undefined
+		 */
+		locate(meta = false) {
+			if (!_routing_active)
+				return undefined;
+			const location = Routing.location;
+			const locate = _lookup(_lookup(location));
+			if ((meta == null || typeof meta !== "object")
+					&& meta !== true)
+				return locate;
+			if (typeof meta !== "object")
+				meta = {};
+			meta.locate = locate;
+			meta.data = location.substring(locate.length)
+				.replace(/^#+/, "")
+				.split(/#+/);
+			return meta;
+		}
+	});
 
 	/**
-	 * Activates the test API. The method can be called multiple times, but is
-	 * ignored after the first call. A later deactivation of the test API is not
-	 * possible.
+	 * The method accepts a path as a string and determines the corresponding
+	 * element that is best covered by this path (Path-to-Element). The path can
+	 * be longer than the actual target, similar to the concepts PATH_TRANSLATED
+	 * and PATH_INFO in CGI.
+	 *
+	 * Alternatively, the method can accept a specific element and determine the
+	 * corresponding path in the markup (Element-to-Path).
+	 *
+	 * @param {string|Element} lookup
+	 * @returns {undefined|string|Element} the path as string or undefined for
+	 *     Element-To-Path or the element for Path-to-Element
 	 */
-	activate() {
+	 const _lookup = (lookup) => {
 
-		window["Test"] = {
+		if (lookup instanceof Element) {
+			let path = "";
+			for (let element = lookup; element; element = element.parentElement) {
+				if (!element.hasAttribute(Composite.ATTRIBUTE_COMPOSITE)
+						|| !element.hasAttribute(Composite.ATTRIBUTE_ID)
+						|| !element.hasAttribute(Routing.ATTRIBUTE_ROUTE))
+					continue;
+				const composite = element.getAttribute(Composite.ATTRIBUTE_ID);
+				const match = composite.match(Composite.PATTERN_COMPOSITE_ID);
+				if (!match)
+					throw new Error(`Invalid composite id${composite ? ": " + composite : ""}`);
+				path = "#" + match[1] + path;
+			}
+			return path || "#";
+		}
 
-			/** Pattern for all accepted events */
-			get PATTERN_EVENT() {return /^[a-z]+$/;},
+		const marker = `[${Composite.ATTRIBUTE_COMPOSITE}][${Routing.ATTRIBUTE_ROUTE}]`;
+		const path = lookup.split("#").slice(1).map(entry =>
+			`[id="${entry}"]${marker},[id^="${entry}@"]${marker}`);
+		while (path.length > 0) {
+			const element = document.querySelector(path.join(">"));
+			if (element instanceof Element)
+				return element;
+			path.pop();
+		}
+		return document.body;
+	};
 
-			/** Constants of events */
-			get EVENT_FINISH() {return "finish";},
-			get EVENT_INTERRUPT() {return "interrupt";},
-			get EVENT_PERFORM() {return "perform";},
-			get EVENT_RESPONSE() {return "response";},
-			get EVENT_RESUME() {return "resume";},
-			get EVENT_START() {return "start";},
-			get EVENT_SUSPEND() {return "suspend";},
+	const _render = (element, focus = false) => {
+		Composite.render(element);
+		if (focus) {
+			Composite.asynchron((element) => {
+				if (typeof element.focus === "function")
+					element.focus();
+			}, element);
+		}
+	};
 
-			/** Constants for a current timestamp */
-			get TIMESTAMP() {return new Date().toUTCString();},
+	/**
+	 * Establishes a listener that detects changes to the URL hash. The method
+	 * corrects invalid and unauthorized paths by forwarding them to next valid
+	 * path and organizes partial rendering.
+	 */
+	window.addEventListener("hashchange", (event) => {
 
-			/**
-			 * Activates the test API. The method can be called multiple times,
-			 * but is ignored after the first call. A later deactivation of the
-			 * test API is not possible.
-			 */
-			activate() {
-			},
+		if (!_routing_active)
+			return;
 
-			/**
-			 * Registers a callback function for test events.
-			 * @param  event    see Test.EVENT_***
-			 * @param  callback callback function
-			 * @throws An error occurs in the following cases:
-			 *     - event is not valid or is not supported
-			 *     - callback function is not implemented correctly
-			 *       or does not exist
-			 */
-			listen(event, callback) {
-
-				if (typeof event !== "string")
-					throw new TypeError("Invalid event: " + typeof event);
-				if (typeof callback !== "function"
-						&& callback !== null
-						&& callback !== undefined)
-					throw new TypeError("Invalid callback: " + typeof callback);
-				if (!event.match(Test.PATTERN_EVENT))
-					throw new Error(`Invalid event${event.trim() ? ": " + event : ""}`);
-
-				event = event.toLowerCase();
-				if (!_listeners.has(event)
-						&& !Array.isArray(_listeners.get(event)))
-					_listeners.set(event, []);
-				_listeners.get(event).push(callback);
-			},
-
-			/**
-			 * Internal method to trigger an event. All callback functions
-			 * for this event are called. If the script is in a frame, at
-			 * the parent object it will also try to trigger this method.
-			 * The parent object is always triggered after the current
-			 * object. If an error occurs when calling the current object,
-			 * the parent object is not triggered.
-			 * @param event  see Test.EVENT_***
-			 * @param status meta object with information about the test
-			 *     execution
-			 */
-			fire(event, status) {
-
-				if (typeof Test.worker === "object")
-					Test.worker.status = event;
-
-				if (typeof Test.worker === "object"
-						&& typeof Test.worker.monitor === "object"
-						&& typeof Test.worker.monitor[event] === "function")
-				try {Test.worker.monitor[event](status);
-				} catch (error) {
-					console.error(error);
+		// Interceptors
+		// - order of execution corresponds to the order of registration
+		// - all interceptors are always checked and executed if they match
+		// - no entry in history
+		// - can change the new hash/path, but please use replace
+		// - following interceptors use the possibly changed hash/path
+		// - on the first explicit false, terminates the logic in hashchange
+		const oldHash = _locate(event.oldURL);
+		const newHash = _locate(event.newURL);
+		for (const interceptor of _interceptors) {
+			if (typeof interceptor.path === "string") {
+				if (!Path.PATTERN_PATH.test(interceptor.path))
+					continue;
+				if (interceptor.path.endsWith("#")) {
+					if (!newHash.startsWith(interceptor.path))
+						continue;
+				} else {
+					if (newHash !== interceptor.path
+						    && !newHash.startsWith(interceptor.path + "#"))
+						continue;
 				}
+			} else if (interceptor.path instanceof RegExp) {
+				if (!interceptor.path.test(newHash))
+					continue;
+			} else continue;
+			if (typeof interceptor.actor === "function"
+					&& interceptor.actor(oldHash, newHash) === false)
+				return;
+		}
 
-				event = (event || "").trim();
-				if (!event)
-					return;
-				const listeners = _listeners.get(event.toLowerCase());
-				if (Array.isArray(listeners))
-					listeners.forEach(callback =>
-						callback(event, status));
+		const location = Routing.location || "#";
+		if (location !== Browser.location) {
+			window.location.replace(location);
+			return;
+		}
 
-				if (parent && parent !== window)
-					try {parent.Test.fire(event, status);
-					} catch (error) {
-					}
-			},
+		// Maintaining the history.
+		// For recursions, the history is discarded after the first occurrence.
+		const index = _history.indexOf(location);
+		if (index >= 0)
+			_history.length = index;
+		_history.push(location);
 
-			/**
-			 * Creates and registers a test task. A test task is a function or
-			 * object with the required meta information for performing and a
-			 * test method to be executed.
-			 *
-			 *     structure of meta: {name:..., test:..., timeout:..., expected:..., ignore:...}
-			 *
-			 * name       optional name of the test task
-			 * test       an implemented method to be executed as a test
-			 * timeout    maximum runtime of the test task in milliseconds
-			 *            Exceeding this limit will cause the test to fail.
-			 *            A value greater than 0 is expected, otherwise the
-			 *            timeout is ignored.
-			 * expected   if you want to test for the occurrence of an error
-			 *            The error must occur if the test is successful.
-			 *            An error object or a RegExp is expected as value.
-			 * ignore     true, if the test is to be ignored
-			 *
-			 * Implementation of test:
-			 *
-			 *     Test.create({test() {
-			 *         Assert.assertTrue(true);
-			 *     }});
-			 *
-			 *     Test.create({name:"example", timeout:1000, test() {
-			 *         Assert.assertTrue(true);
-			 *     }});
-			 *
-			 *     Test.create({error:Error test() {
-			 *         throw new Error();
-			 *     }});
-			 *
-			 *     Test.create({error:/^My Error/i, test() {
-			 *         throw new Error("My Error");
-			 *     }});
-			 *
-			 *     Test.create({ignore:true, test() {
-			 *         Assert.assertTrue(true);
-			 *     }});
-			 *
-			 * @param meta
-			 */
-			create(meta) {
+		// Decision matrix
+		// - invalid path(s) / undefined, then do nothing
+		// - no path match / null, then render body and focus
+		// - Composite old and new are the same, then render and focus new
+		// - Composite old and new are not equal and one is body, then render
+		//   body and focus new
+		// - Composite old includes new, then render old and focus new
+		// - Composite new includes old, then render new and focus new
+		// - Composite old and new unequal, then render old, then render new and
+		//   focus new
 
-				if (typeof meta !== "object"
-						|| typeof meta.test !== "function")
-					return;
+		const locationOld = Path.normalize(_locate(event.oldURL));
+		const locationNew = Path.normalize(_locate(event.newURL));
+		const locationMatch = Path.matches(locationOld, locationNew);
+		if (locationMatch === undefined)
+			return;
+		if (locationMatch === null) {
+			_render(document.body, true);
+			return;
+		}
+		const locationOldElement = _lookup(locationOld);
+		const locationNewElement = _lookup(locationNew);
+		if (locationOldElement === locationNewElement) {
+			_render(locationNewElement, true);
+			return;
+		}
+		if (locationOldElement === document.body
+				|| locationNewElement === document.body) {
+			_render(document.body);
+			Composite.asynchron((element) => {
+				if (typeof element.focus === "function")
+					element.focus();
+			}, locationNewElement);
+			return;
+		}
+		if (locationOldElement.contains(locationNewElement)) {
+			_render(locationOldElement);
+			Composite.asynchron((element) => {
+				if (typeof element.focus === "function")
+					element.focus();
+			}, locationNewElement);
+			return;
+		}
+		if (locationNewElement.contains(locationOldElement)) {
+			_render(locationNewElement, true);
+			return;
+		}
+		_render(locationOldElement);
+		_render(locationNewElement, true);
+	});
 
-				if (meta.ignore !== undefined
-						&& meta.ignore === true)
-					return;
+	/**
+	 * Rendering filter for all composite elements. The filter causes that for
+	 * each composite element determined by the renderer, an additional
+	 * condition is added to the Routing. This condition is used to show and
+	 * hide the composite elements in the DOM. What happens by physically adding
+	 * and removing. The elements are identified by the composite ID.
+	 */
+	Composite.customize((element) => {
 
-				if (_stack.has(meta))
-					return;
+		if (element instanceof Element
+				&& element.hasAttribute("route")
+				&& element.getAttribute("route") !== "")
+			console.warn("Ignore value for attribute route");
 
-				_stack.add(meta);
-				const stack = Array.from(_stack);
-				Object.defineProperty(meta, "serial", {
-					value: Math.max(stack.length, stack.length > 1 ? stack[stack.length -2].serial +1 : 1)
+		if (_routing_active === undefined) {
+			// Activates routing during the initial rendering via the boolean
+			// attribute route. It must not have a value, otherwise it is
+			// ignored and routing is not activated. The decision was
+			// deliberate, so that interpretations such as route="off" do not
+			// cause false expectations and misunderstandings.
+			_routing_active = document.body.hasAttribute("route");
+			if (document.body.hasAttribute("route")
+					&& document.body.getAttribute("route") !== "")
+				console.warn("Ignore value for attribute route");
+
+			if (!_routing_active)
+				return;
+
+			// Without path, is forwarded to the root. The fact that the
+			// interface can be called without a path if it wants to use the
+			// routing must be taken into account in the declaration of the
+			// markup and in the implementation. This logic is not included
+			// here! With path, the event must be triggered initially so that
+			// any custom interceptors are addressed with the initial path.
+			if (Browser.location) {
+				const event = new Event("hashchange",{bubbles:false, cancelable:true});
+				event.oldURL = "";
+				event.newURL = Browser.location;
+				window.dispatchEvent(event);
+			} else Routing.route("#");
+		}
+
+		if (!_routing_active
+				|| !(element instanceof Element)
+				|| !element.hasAttribute(Composite.ATTRIBUTE_COMPOSITE)
+				|| !element.hasAttribute(Routing.ATTRIBUTE_ROUTE))
+			return;
+
+		const composite = (element.getAttribute(Composite.ATTRIBUTE_ID) || '').trim();
+		const path = _lookup(element);
+
+		let script = null;
+		if (element.hasAttribute(Composite.ATTRIBUTE_CONDITION)) {
+			script = element.getAttribute(Composite.ATTRIBUTE_CONDITION).trim();
+			if (script.match(Composite.PATTERN_EXPRESSION_CONTAINS))
+				script = script.replace(Composite.PATTERN_EXPRESSION_CONTAINS, (match) => {
+					match = match.substring(2, match.length -2).trim();
+					return `{{Routing.approve("${path}", ${composite}") and (${match})}}`;
 				});
-			},
+		}
+		if (!script)
+			script = `{{Routing.approve("${path}", "${composite}")}}`;
+		element.setAttribute(Composite.ATTRIBUTE_CONDITION, script);
+	});
 
-			/**
-			 * Starts the test run. The execution of the tests can optionally be
-			 * configured with the start by passing a meta object. The
-			 * parameters in the meta object are optional and cannot be changed
-			 * when the test are running. Only with the next start can new
-			 * parameters be passed as meta objects.
-			 *
-			 *     Test.start({auto: boolean, output: {...}, monitor: {...}});
-			 *
-			 *     auto
-			 *     ----
-			 * true, the start is triggered when the page is loaded
-			 * If the page is already loaded, the parameter auto is ignored and
-			 * the start is executed immediately.
-			 *
-			 *     output
-			 *     ----
-			 * Simple function or object for outputting messages and errors.
-			 * If not specified, console object is used.
-			 *
-			 * Implementation of an output (as function or object):
-			 *
-			 *     var output = {
-			 *
-			 *         log(message) {
-			 *             ...
-			 *         },
-			 *
-			 *         error(message) {
-			 *             ...
-			 *         }
-			 *     };
-			 *
-			 *     monitor
-			 *     ----
-			 * Monitors the test procedure and is informed about the various
-			 * cycles during execution. The monitor also controls the data
-			 * output. For example, the output can be redirected to DOM
-			 * elements. Without a monitor the tests will also be performed, but
-			 * there will be an output about success and failure. If no monitor
-			 * is specified, the internal monitor is used with a simple console
-			 * output.
-			 *
-			 * Implementation of a monitor (as function or object):
-			 *
-			 *     var monitor = {
-			 *
-			 *         start(status) {
-			 *             The method is called with the start.
-			 *         },
-			 *
-			 *         suspend(status) {
-			 *             The method is called with suspension.
-			 *         },
-			 *
-			 *         resume(status) {
-			 *             The method is called if the test run is stopped and
-			 *             is to be continued later.
-			 *         },
-			 *
-			 *         interrupt(status) {
-			 *             The method is called if you want to abort the test
-			 *             run. The test run cannot then be resumed.
-			 *         },
-			 *
-			 *         perform(status) {
-			 *             The method is called before a test task is performed.
-			 *         },
-			 *
-			 *         response(status) {
-			 *             The method is called when a test task has been
-			 *             performed. Here you can find the result of the test
-			 *             task.
-			 *         },
-			 *
-			 *         finish(status) {
-			 *             The method is called when all test tasks have been
-			 *             completed.
-			 *         }
-			 *     };
-			 *
-			 * The current status is passed to all monitor methods as an object.
-			 * The status is a snapshot of the current test run with details of
-			 * the current task and the queue. The details are read-only and
-			 * cannot be changed.
-			 *
-			 *     structure of status: {task:..., queue:...}
-			 *
-			 * task.title      title of the test task
-			 * task.meta       meta information about the test itself name,
-			 *                 test, timeout, expected, serial
-			 * task.running    indicator when the test task is in progress
-			 * task.timing     start time from the test task in milliseconds
-			 * task.timeout    optional, the time in milliseconds when a timeout
-			 *                 is expected
-			 * task.duration   total execution time of the test task in
-			 *                 milliseconds, is set with the end of the test
-			 *                 task
-			 * task.error      optional, if an unexpected error (also assert
-			 *                 error) has occurred, which terminated the test
-			 *                 task
-			 *
-			 * queue.timing    start time in milliseconds
-			 * queue.size      original queue length
-			 * queue.length    number of outstanding tests
-			 * queue.progress  number of tests performed
-			 * queue.lock      indicator when a test is performed and the queue
-			 *                 is waiting
-			 * queue.faults    number of detected faults
-			 *
-			 * @param meta
-			 */
-			start(meta) {
+	/**
+	 * Static component for the use of paths (routes). Paths are used for
+	 * navigation, routing and controlling the view flow. The target can be a
+	 * view or a function if using interceptors.
+	 */
+	compliant("Path", {
 
-				if (Test.worker !== undefined)
-					return;
+		// Pattern for a valid path in the 7-bit ASCII range
+		get PATTERN_PATH() {return /^#[\x21-\x7E]*$/},
 
-				if (meta && meta.auto
-						&& (document.readyState === "loading"
-							|| document.readyState === "interactive")) {
-					if (Test.start.auto === undefined) {
-						Object.defineProperty(Test.start, "auto", {
-							value: true
-						});
-						window.addEventListener("load", () =>
-							Test.start(meta));
-					}
-					return;
+		// Pattern for a string in the 7-bit ASCII range
+		get PATTERN_ASCII() {return /^[\x21-\x7E]*$/},
+
+		/**
+		 * Compares two paths and returns the common part. This method compares
+		 * path and compare. If the paths match, the method returns the common
+		 * part of the paths. If there is no match, null is returned. When
+		 * trying with paths without content (null and empty string), the method
+		 * will not return a value.
+		 * @param {string} path
+		 * @param {string} compare
+		 * @returns {undefined|null|string}
+		 */
+		matches(path, compare) {
+
+			if (path === undefined
+					|| (typeof path !== "string"
+						    && path !== null)
+					|| compare === undefined
+					|| (typeof compare !== "string")
+						    && compare !== null)
+				throw new TypeError("Invalid data type");
+
+			if (path == null
+					|| path.length <= 0
+					|| compare == null
+					|| compare.length <= 0)
+				return;
+			path = path.split(/(?=#)/);
+			compare = compare.split(/(?=#)/);
+			const length = Math.min(path.length, compare.length);
+			for (let index = 0; index < length; index++) {
+				if (path[index] !== compare[index]) {
+					path.length = index;
+					break;
 				}
-
-				const numerical = (number, text) =>
-					`${number} ${text}${number !== 1 ? "s" : ""}`;
-
-				Test.worker = {};
-
-				// Test.worker.output
-				// Output to be used for all messages and errors
-				Test.worker.output = meta ? meta.output : null;
-				Test.worker.output = Test.worker.output || console;
-
-				// Test.worker.monitor
-				// Monitoring of test processing
-				Test.worker.monitor = meta ? meta.monitor : null;
-				Test.worker.monitor = Test.worker.monitor || {
-					start(status) {
-						Test.worker.output.log(Test.TIMESTAMP + " Test is started"
-								+ `, ${numerical(status.queue.size, "task")} in the queue`);
-					},
-					suspend(status) {
-						Test.worker.output.log(Test.TIMESTAMP + " Test is suspended"
-								+ `, ${numerical(status.queue.length, "task")} still outstanding`);
-					},
-					resume(status) {
-						Test.worker.output.log(Test.TIMESTAMP + " Test is continued"
-								+ `, ${numerical(status.queue.size, "task")} in the queue`);
-					},
-					interrupt(status) {
-						Test.worker.output.log(Test.TIMESTAMP + " Test is interrupted"
-								+ `\n\t${numerical(status.queue.size -status.queue.progress, "task")} still outstanding`
-								+ `\n\t${numerical(status.queue.faults, "fault")} were detected`
-								+ `\n\ttotal time ${new Date().getTime() -status.queue.timing} ms`);
-					},
-					perform(status) {
-					},
-					response(status) {
-						const timing = new Date().getTime() -status.task.timing;
-						if (status.task.error)
-							Test.worker.output.error(`${Test.TIMESTAMP} Test task ${status.task.title} ${status.task.error.message}`);
-						else Test.worker.output.log(`${Test.TIMESTAMP} Test task ${status.task.title} was successful (${timing} ms)`);
-					},
-					finish(status) {
-						Test.worker.output.log(Test.TIMESTAMP + "Test is finished"
-								+ `\n\t${numerical(status.queue.size, "task")} were performed`
-								+ `\n\t${numerical(status.queue.faults, "fault")} were detected`
-								+ `\n\ttotal time ${new Date().getTime() -status.queue.timing} ms`);
-					}
-				};
-
-				// Test.worker.queue
-				// Queue of currently running test tasks
-				Test.worker.queue = Test.worker.queue || {timing:false, stack:[], size:0, lock:false, progress:0, faults:0};
-				if (Test.worker.queue.stack.length <= 0) {
-					Test.worker.queue.stack = Array.from(_stack);
-					Test.worker.queue.size = Test.worker.queue.stack.length;
-					Test.worker.queue.timing = new Date().getTime();
-				}
-
-				// Test.worker.timeout
-				// Timer for controlling test tasks with timeout
-				Test.worker.timeout = window.setInterval(() => {
-
-					if (Test.worker.status === Test.EVENT_SUSPEND)
-						return;
-
-					if (Test.worker.task === undefined
-							|| !Test.worker.task.running
-							|| !Test.worker.queue.lock)
-						return;
-
-					const task = Test.worker.task;
-					if (!task.timeout
-							|| task.timeout > new Date().getTime())
-						return;
-
-					task.duration = new Date().getTime() -task.timing;
-					task.error = new Error(`Timeout occurred, expected ${task.timeout} ms but was ${task.duration} ms`);
-					Test.fire(Test.EVENT_RESPONSE, Test.status());
-					Test.worker.queue.faults++;
-					Test.worker.queue.lock = false;
-				}, 25);
-
-				// Test.worker.interval
-				// Timer for processing the queue
-				Test.worker.interval = window.setInterval(() => {
-
-					if (Test.worker.status === Test.EVENT_SUSPEND)
-						return;
-
-					if (!Test.worker.queue.lock
-							&& Test.worker.queue.progress <= 0)
-						Test.fire(Test.EVENT_START, Test.status());
-
-					if (Test.worker.queue.lock)
-						return;
-
-					if (Test.worker.queue.stack.length > 0) {
-						Test.worker.queue.lock = true;
-						Test.worker.queue.progress++;
-						const meta = Test.worker.queue.stack.shift();
-						let timeout = false;
-						if ((meta.timeout || 0) > 0)
-							timeout = new Date().getTime() +meta.timeout;
-
-						Test.worker.task = {title:null, meta, running:true, timing:new Date().getTime(), timeout, duration:false, error:null};
-						Test.worker.task.title = "#" + meta.serial;
-						if (typeof meta.name === "string"
-								&& meta.name.trim().length > 0)
-							Test.worker.task.title += " " + meta.name.replace(/[\x00-\x20]+/g, " ").trim();
-						Test.fire(Test.EVENT_PERFORM, Test.status());
-						Composite.asynchron(() => {
-							const task = Test.worker.task;
-							try {task.meta.test();
-							} catch (error) {
-								task.error = error;
-								if (!task.error.message
-										|| !task.error.message.trim())
-									task.error.message = "failed";
-							} finally {
-								if (task.meta.expected) {
-									if (task.error) {
-										if (typeof task.meta.expected === "function"
-												&& task.error instanceof(task.meta.expected))
-											task.error = null;
-										if (typeof task.meta.expected === "object"
-												&& task.meta.expected instanceof(RegExp)
-												&& String(task.error).match(task.meta.expected))
-											task.error = null;
-									} else task.error = Error("Assert error expected failed");
-								}
-								task.running = false;
-								task.duration = new Date().getTime() -task.timing;
-								if (task.timeout
-										&& task.timeout < new Date().getTime()
-										&& !task.error) {
-									task.error = new Error(`Timeout occurred, expected ${task.meta.timeout} ms but was ${task.duration} ms`);
-									Test.fire(Test.EVENT_RESPONSE, Test.status());
-									Test.worker.queue.faults++;
-								}
-								if (!task.error
-										|| !String(task.error.message).match(/^Timeout occurred/)) {
-									if (task.error)
-										Test.worker.queue.faults++;
-									Test.fire(Test.EVENT_RESPONSE, Test.status());
-								}
-								Test.worker.queue.lock = false;
-							}
-						});
-						return;
-					}
-
-					window.clearTimeout(Test.worker.interval);
-					window.clearTimeout(Test.worker.timeout);
-					Test.fire(Test.EVENT_FINISH, Test.status());
-					delete Test.worker;
-				}, 25);
-			},
-
-			/**
-			 * Suspends the current test run, which can be continued from the
-			 * current test with Test.resume().
-			 * @throws An error occurs in the following cases:
-			 *     - No worker is present or cannot be suspended
-			 */
-			suspend() {
-				if (Test.worker === undefined)
-					throw new Error("Suspend is not available");
-				Test.fire(Test.EVENT_SUSPEND, Test.status());
-			},
-
-			/**
-			 * Continues the test run if it was previously suspended.
-			 * @throws An error occurs in the following cases:
-			 *     - No worker is present or cannot be resumed
-			 */
-			resume() {
-				if (Test.worker === undefined
-						|| Test.worker.status !== Test.EVENT_SUSPEND)
-					throw new Error("Resume is not available");
-				Test.fire(Test.EVENT_RESUME, Test.status());
-			},
-
-			/**
-			 * Interrupts the current test run and discards all outstanding
-			 * tests. The test run can be restarted with Test.start().
-			 * @throws An error occurs in the following cases:
-			 *     - No worker is present or cannot be interrupted
-			 */
-			interrupt() {
-				if (Test.worker === undefined)
-					throw new Error("Interrupt is not available");
-				window.clearTimeout(Test.worker.interval);
-				window.clearTimeout(Test.worker.timeout);
-				Test.fire(Test.EVENT_INTERRUPT, Test.status());
-				delete Test.worker;
-			},
-
-			/**
-			 * Makes a snapshot of the status of the current test. The status
-			 * contains details of the current task and the queue. The details
-			 * are read-only and cannot be changed. If no test is executed,
-			 * false is returned.
-			 *
-			 *     structure of details: {task:..., queue:...}
-			 *
-			 * task.title      title of the test task
-			 * task.meta       meta information about the test itself name,
-			 *                 test, timeout, expected, serial
-			 * task.running    indicator when the test task is in progress
-			 * task.timing     start time from the test task in milliseconds
-			 * task.timeout    optional, the time in milliseconds when a timeout
-			 *                 is expected
-			 * task.duration   total execution time of the test task in
-			 *                 milliseconds, is set with the end of the test
-			 *                 task
-			 * task.error      optional, if an unexpected error (also assert
-			 *                 error) has occurred, which terminated the test
-			 *                 task
-			 *
-			 * queue.timing    start time in milliseconds
-			 * queue.size      original queue length
-			 * queue.length    number of outstanding tests
-			 * queue.progress  number of tests performed
-			 * queue.lock      indicator when a test is performed and the queue
-			 *                 is waiting
-			 * queue.faults    number of detected faults
-			 *
-			 * @return an object with status information, otherwise false
-			 */
-			status() {
-
-				const status = {};
-				if (typeof Test.worker === "object"
-						&& typeof Test.worker.task === "object") {
-					status.task = {};
-					Object.defineProperty(status.task, "title", {
-						value: Test.worker.task.title,
-						enumerable: true
-					});
-					Object.defineProperty(status.task, "meta", {
-						value: Test.worker.task.meta,
-						enumerable: true
-					});
-					Object.defineProperty(status.task, "running", {
-						value: Test.worker.task.running,
-						enumerable: true
-					});
-					Object.defineProperty(status.task, "timing", {
-						value: Test.worker.task.timing,
-						enumerable: true
-					});
-					Object.defineProperty(status.task, "timeout", {
-						value: Test.worker.task.timeout,
-						enumerable: true
-					});
-					Object.defineProperty(status.task, "duration", {
-						value: Test.worker.task.duration,
-						enumerable: true
-					});
-					Object.defineProperty(status.task, "error", {
-						value: Test.worker.task.error,
-						enumerable: true
-					});
-				}
-
-				if (typeof Test.worker === "object"
-						&& typeof Test.worker.queue === "object") {
-					status.queue = {};
-					Object.defineProperty(status.queue, "timing", {
-						value: Test.worker.queue.timing,
-						enumerable: true
-					});
-					Object.defineProperty(status.queue, "size", {
-						value: Test.worker.queue.size,
-						enumerable: true
-					});
-					Object.defineProperty(status.queue, "length", {
-						value: Test.worker.queue.stack.length,
-						enumerable: true
-					});
-					Object.defineProperty(status.queue, "progress", {
-						value: Test.worker.queue.progress,
-						enumerable: true
-					});
-					Object.defineProperty(status.queue, "lock", {
-						value: Test.worker.queue.lock,
-						enumerable: true
-					});
-					Object.defineProperty(status.queue, "faults", {
-						value: Test.worker.queue.faults,
-						enumerable: true
-					});
-				}
-
-				if (status.task === undefined
-						&& status.queue === undefined)
-					return false;
-				return status;
 			}
-		};
+			return path.join("") || null;
+		},
 
-		/** Backlog of created/registered test tasks */
-		const _stack = new Set();
+		/**
+		 * Checks whether the specified path is covered by the current working
+		 * path. Covered means that the specified path must be contained from
+		 * the root of the current working path. This assumes that the URL
+		 * contains at least one hash, otherwise the method returns false.
+		 * @param {string} path to be checked
+		 * @returns {boolean} true if the path is covered by the current path
+		 */
+		covers(path) {
 
-		/** Map with events and their registered listeners */
-		const _listeners = new Map();
+			if (path === undefined
+					|| (typeof path !== "string")
+						    && path !== null)
+				throw new TypeError("Invalid data type");
 
-		(() => {
+			path = Path.normalize(path);
+			if (!Routing.location
+					|| path == null
+					|| path.trim() === "")
+				return false;
+			if (path === "#")
+				return true;
+			return (Routing.location + "#").startsWith(path + "#");
+		},
 
-			// Redirection of the console level INFO, ERROR, WARN, LOG when
-			// using tests. The outputs are buffered for analysis and listeners
-			// can be implemented whose callback method is called at console
-			// outputs.
+		/**
+		 * Normalizes a path. Paths consist of words that only use 7-bit ASCII
+		 * characters above the space character. The words are separated by the
+		 * hash character (#). There are absolute and relative paths:
+		 *
+		 * - Absolute Paths start with the root, represented by a leading
+		 *   hash sign (#).
+		 *
+		 * - Relative Paths are based on the current path and begin with either
+		 *   a word or a return. Return jumps also use the hash sign, whereby
+		 *   the number of repetitions indicates the number of return jumps. If
+		 *   the URL does not contain at least one hash and therefore has no
+		 *   working path, the root path is used as the working path.
+		 *
+		 * The return value is always a balanced canonical path, starting with
+		 * the root.
+		 *
+		 * Examples (root #x#y#z):
+		 *
+		 *    #a#b#c#d#e##f   #a#b#c#d#f
+		 *    #a#b#c#d#e###f  #a#b#c#f
+		 *    ###f            #x#f
+		 *    ####f           #f
+		 *    empty           #x#y#z
+		 *    #               #x#y#z
+		 *    a#b#c           #x#y#z#a#b#c
+		 *
+		 * Invalid roots and paths cause an error.
+		 *
+		 * The method has the following various signatures:
+		 *     function(root, path)
+		 *     function(root, path, ...)
+		 *     function(path)
+		 *
+		 * @param {string} [root] optional, otherwise current location is used
+		 * @param {string} path to normalize
+		 * @returns {string} the normalize path
+		 * @throws {Error} An error occurs in the following cases:
+		 *     - Invalid root and/or path
+		 */
+		normalize(...variants) {
 
-			/** Cache for analyzing console output */
-			const _output = {log:"", warn:"", error:"", info:""};
+			if (variants == null
+					|| variants.length <= 0)
+				return null;
 
-			console.output = {
-				get log()   {return _output.log;},
-				get warn()  {return _output.warn;},
-				get error() {return _output.error;},
-				get info()  {return _output.info;}
-			};
+			if (variants.length === 1
+					&& variants[0] == null)
+				return null;
 
-			/** Clears the cache from the console output. */
-			console.output.clear = () => {
-				_output.log   = "";
-				_output.warn  = "";
-				_output.error = "";
-				_output.info  = "";
-			};
-
-			/** Set of registered listeners for occurring console outputs. */
-			const _listeners = new Set();
-
-			/**
-			 * Registers a callback function for console output.
-			 * Expected method signatures:
-			 *     function(level)
-			 *     function(level, ...)
-			 * @param callback callback function
-			 */
-			console.listen = function(callback) {
-				_listeners.add(callback);
-			};
-
-			/**
-			 * General method for redirecting console levels. If the script is in a
-			 * frame, at the parent object it will also try to trigger this method.
-			 * The parent object is always triggered after the current object. If an
-			 * error occurs when calling the current object, the parent object is
-			 * not triggered.
-			 * @param level
-			 * @param variants
-			 * @param output
-			 */
-			console.forward = function(level, variants, output) {
-				_output[level] += Array.from(variants).join(", ");
-				if (output)
-					output(...variants);
-				_listeners.forEach((callback) =>
-					callback(...([level, ...variants])));
-				if (!parent
-						|| parent === window
-						|| !parent.console
-						|| typeof parent.console.forward !== "function")
-					return;
-				parent.console.forward(...(Array.from(arguments).slice(0, 2)));
-			};
-
-			/** Redirect for the level: LOG */
-			const _log = console.log;
-			console.log = function(...variants) {
-				console.forward("log", variants, _log);
-			};
-
-			/** Redirect for the level: WARN */
-			const _warn = console.warn;
-			console.warn = function(...variants) {
-				console.forward("warn", variants, _warn);
-			};
-
-			/** Redirect for the level: ERROR */
-			const _error = console.error;
-			console.error = function(...variants) {
-				console.forward("error", variants, _error);
-			};
-
-			/** Redirect for the level: INFO */
-			const _info = console.info;
-			console.info = function(...variants) {
-				console.forward("info", variants, _info);
-			};
-
-			/** In case of an error, it is forwarded to the console. */
-			window.addEventListener("error", (event) => {
-				if (parent && parent !== window)
-					console.forward("error", ((...variants) => variants)(event.message), null);
+			variants.every(item => {
+				if (item == null
+						|| typeof item === "string")
+					return true;
+				throw new TypeError("Invalid data type");
 			});
-		})();
 
-		/**
-		 * Enhancement of the JavaScript API
-		 * The following events are triggered during simulation:
-		 *     focus, keydown, keyup, change
-		 * @param value simulated input value
-		 * @param clear option false suppresses emptying before input
-		 */
-		compliant("Element.prototype.typeValue", function(value, clear) {
-			this.focus();
-			if (clear !== false)
-				this.value = "";
-			const element = this;
-			value = (value || "").split("");
-			value.forEach((digit) => {
-				element.trigger("keydown");
-				element.value = (element.value || "") + digit;
-				element.trigger("keyup");
-			});
-			this.trigger("input");
-		});
+			variants = variants.filter((item, index) =>
+				item != null
+					&& item.trim() !== ""
+					&& !(index > 0 && item === "#"));
 
-		/**
-		 * Enhancement of the JavaScript API
-		 * Adds a method that creates a plain string for an Element.
-		 */
-		compliant("Element.prototype.toPlainString", function() {
-			return this.outerHTML;
-		});
+			variants.forEach(item => {
+				if (!Path.PATTERN_ASCII.test(item))
+					throw new Error(`Invalid path element: ${item}`)});
 
-		/**
-		 * Enhancement of the JavaScript API
-		 * Adds a method that creates a plain string for a Node.
-		 */
-		compliant("Node.prototype.toPlainString", function() {
-			return (new XMLSerializer()).serializeToString(this);
-		});
+			variants = ((paths) =>
+				paths.map((item, index) => {
+					item = item == null ? "" : item.trim()
+					item = item.replace(/([^#])#$/, '$1');
+					if (index > 0 && item.startsWith('#'))
+						return item.substring(1);
+					return item;
+				})
+			)(variants);
 
-		/**
-		 * Enhancement of the JavaScript API
-		 * Adds a method that creates a plain string for an Object.
-		 */
-		compliant("Object.prototype.toPlainString", function() {
-			if (this !== null
-					&& typeof this[Symbol.iterator] === 'function')
-				return JSON.stringify([...this]);
-			return JSON.stringify(this);
-		});
+			let location = Browser.location;
+			if (location == null
+					|| location.trim() === "")
+				location = "#";
+			if (variants.length > 0
+					&& variants[0] == null)
+				variants[0] = location;
+			if (variants.length > 0
+					&& !variants[0].startsWith('#'))
+				variants.unshift(location);
+			if (variants.length <= 0)
+				variants.unshift(location);
 
-		/**
-		 * Enhancement of the JavaScript API
-		 * Adds a method to trigger an event for elements.
-		 * @param event   type of event
-		 * @param bubbles deciding whether the event should bubble up
-		 *     through the event chain or not
-		 * @param cancel  defining whether the event can be canceled
-		 */
-		compliant("Element.prototype.trigger", function(event, bubbles = false, cancel = true) {
-			this.dispatchEvent(new Event(event, {bubbles:bubbles, cancelable:cancel}));
-		});
+			let path = variants.join("#");
+			if (path.startsWith("##"))
+				path = location + path;
 
-		/**
-		 * A set of assertion methods useful for writing tests.
-		 * Only failed assertions are recorded.
-		 * These methods can be used directly:
-		 *     Assert.assertEquals(...);
-		 */
-		compliant("Assert", {
+			if (!path.match(Path.PATTERN_PATH))
+				throw new Error(`Invalid path${String(path).trim() ? ": " + path : ""}`);
 
-			/**
-			 * Creates a new assertion based on an array of variant parameters.
-			 * Size defines the number of test values. If more parameters are
-			 * passed, the first must be the message.
-			 * @param parameters
-			 * @param size
-			 */
-			create(parameters, size) {
+			const pattern = /#[^#]+#{2}/;
+			while (path.match(pattern))
+				path = path.replace(pattern, "#");
+			path = "#" + path.replace(/(^#+)|(#+)$/g, "");
 
-				const assert = {message:null, values:[], error(...variants) {
-					variants.forEach((parameter, index, array) => {
-						array[index] = String(parameter).replace(/\{(\d+)\}/g, (match, index) => {
-							if (index > assert.values.length)
-								return "[null]";
-							match = String(assert.values[index]);
-							match = match.replace(/\s*[\r\n]+\s*/g, " ");
-							return match;
-						});
-					});
-
-					let message = "expected {1} but was {2}";
-					if (assert.message !== null) {
-						assert.message = assert.message.trim();
-						if (assert.message)
-							message = assert.message;
-					}
-					message = "{0} failed, " + message;
-					message = message.replace(/\{(\d+)\}/g, (match, index) => {
-						if (index > variants.length)
-							return "[null]";
-						match = String(variants[index]);
-						match = match.replace(/\s*[\r\n]+\s*/g, " ");
-						return match;
-					});
-					return new Error(message);
-				}};
-
-				parameters = Array.from(parameters);
-				if (parameters.length > size)
-					assert.message = parameters.shift();
-				while (parameters.length > 0)
-					assert.values.push(parameters.shift());
-
-				return assert;
-			},
-
-			/**
-			 * Asserts that a value is true.
-			 * If the assertion is false, an error with message is thrown.
-			 * The method has the following various signatures:
-			 *     function(message, value)
-			 *     function(value)
-			 * @param message
-			 * @param value
-			 */
-			assertTrue(...variants) {
-				const assert = Assert.create(variants, 1);
-				if (assert.values[0] === true)
-					return;
-				throw assert.error("Assert.assertTrue", "true", "{0}");
-			},
-
-			/**
-			 * Asserts that a value is false.
-			 * If the assertion is false, an error with message is thrown.
-			 * The method has the following various signatures:
-			 *     function(message, value)
-			 *     function(value)
-			 * @param message
-			 * @param value
-			 */
-			assertFalse(...variants) {
-				const assert = Assert.create(variants, 1);
-				if (assert.values[0] === false)
-					return;
-				throw assert.error("Assert.assertFalse", "false", "{0}");
-			},
-
-			/**
-			 * Asserts that two values are equals.
-			 * Difference between equals and same: === / == or !== / !=
-			 * If the assertion is false, an error with message is thrown.
-			 * The method has the following various signatures:
-			 *     function(message, expected, actual)
-			 *     function(expected, actual)
-			 * @param message
-			 * @param expected
-			 * @param actual
-			 */
-			assertEquals(...variants) {
-				const assert = Assert.create(variants, 2);
-				if (assert.values[0] === assert.values[1])
-					return;
-				throw assert.error("Assert.assertEquals", "{0}", "{1}");
-			},
-
-			/**
-			 * Asserts that two values are not equals.
-			 * Difference between equals and same: === / == or !== / !=
-			 * If the assertion is false, an error with message is thrown.
-			 * The method has the following various signatures:
-			 *     function(message, unexpected, actual)
-			 *     function(unexpected, actual)
-			 * @param message
-			 * @param unexpected
-			 * @param actual
-			 */
-			assertNotEquals(...variants) {
-				const assert = Assert.create(variants, 2);
-				if (assert.values[0] !== assert.values[1])
-					return;
-				throw assert.error("Assert.assertNotEquals", "not {0}", "{1}");
-			},
-
-			/**
-			 * Asserts that two values are the same.
-			 * Difference between equals and same: === / == or !== / !=
-			 * If the assertion is false, an error with message is thrown.
-			 * The method has the following various signatures:
-			 *     function(message, expected, actual)
-			 *     function(expected, actual)
-			 * @param message
-			 * @param expected
-			 * @param actual
-			 */
-			assertSame(...variants) {
-				const assert = Assert.create([], variants, 2);
-				if (assert.values[0] === assert.values[1])
-					return;
-				throw assert.error("Assert.assertSame", "{0}", "{1}");
-			},
-
-			/**
-			 * Asserts two values are not the same.
-			 * Difference between equals and same: === / == or !== / !=
-			 * If the assertion is false, an error with message is thrown.
-			 * The method has the following various signatures:
-			 *     function(message, unexpected, actual)
-			 *     function(unexpected, actual)
-			 * @param message
-			 * @param unexpected
-			 * @param actual
-			 */
-			assertNotSame(...variants) {
-				const assert = Assert.create(variants, 2);
-				if (assert.values[0] !== assert.values[1])
-					return;
-				throw assert.error("Assert.assertNotSame", "not {0}", "{1}");
-			},
-
-			/**
-			 * Asserts that a value is undefined.
-			 * If the assertion is false, an error with message is thrown.
-			 * The method has the following various signatures:
-			 *     function(message, value)
-			 *     function(value)
-			 * @param message
-			 * @param value
-			 */
-			assertUndefined(...variants) {
-				const assert = Assert.create(variants, 1);
-				if (assert.values[0] === undefined)
-					return;
-				throw assert.error("Assert.assertUndefined", "undefined", "{0}");
-			},
-
-			/**
-			 * Asserts that a value is not undefined.
-			 * If the assertion is false, an error with message is thrown.
-			 * The method has the following various signatures:
-			 *     function(message, value)
-			 *     function(value)
-			 * @param message
-			 * @param value
-			 */
-			assertNotUndefined(...variants) {
-				const assert = Assert.create(variants, 1);
-				if (assert.values[0] !== undefined)
-					return;
-				throw assert.error("Assert.assertNotUndefined", "not undefined", "{0}");
-			},
-
-			/**
-			 * Asserts that a value is null.
-			 * If the assertion is false, an error with message is thrown.
-			 * The method has the following various signatures:
-			 *     function(message, value)
-			 *     function(value)
-			 * @param message
-			 * @param value
-			 */
-			assertNull(...variants) {
-				const assert = Assert.create(variants, 1);
-				if (assert.values[0] === null)
-					return;
-				throw assert.error("Assert.assertNull", "null", "{0}");
-			},
-
-			/**
-			 * Asserts that a value is not null.
-			 * If the assertion is false, an error with message is thrown.
-			 * The method has the following various signatures:
-			 *     function(message, value)
-			 *     function(value)
-			 * @param message
-			 * @param value
-			 */
-			assertNotNull(...variants) {
-				const assert = Assert.create(variants, 1);
-				if (assert.values[0] !== null)
-					return;
-				throw assert.error("Assert.assertNotNull", "not null", "{0}");
-			},
-
-			/**
-			 * Fails a test with an optional message.
-			 * The method has the following various signatures:
-			 *     function(message)
-			 *     function()
-			 * @param message
-			 */
-			fail(message) {
-				if (message)
-					message = String(message).trim();
-				throw new Error("Assert.fail" + (message ? ", " + message : ""));
-			}
-		});
-	}
-});
+			return path;
+		}
+	});
+})();
