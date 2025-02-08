@@ -2141,11 +2141,7 @@
 						        selector.setAttribute(attribute, redirect[2]);
 						    }
 						    selector.setCustomValidity(redirect[2]);
-						} else {
-						    selector.setCustomValidity(message);
-						    if (typeof selector.reportValidity === "function")
-						        selector.reportValidity();
-						}
+						} else selector.setCustomValidity(message);
 					}
 				}
 			}
