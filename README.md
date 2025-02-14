@@ -11,7 +11,7 @@
 </p>
 
 # Description
-Proof of concept for small multiplayer games based on [aspect-js](
+Proof of concept for small multiplayer game platform based on [aspect-js](
     https://github.com/seanox/aspect-js) and [xml-micro-exchange](
     https://github.com/seanox/xml-micro-exchange-js).
 
