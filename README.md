@@ -1,13 +1,13 @@
 <p>
-  <a href="https://github.com/seanox/xml-micro-exchange-games/pulls">
-    <img src="https://img.shields.io/badge/development-active-green?style=for-the-badge">
-  </a>  
-  <a href="https://github.com/seanox/xml-micro-exchange-games/issues">
-    <img src="https://img.shields.io/badge/maintenance-active-green?style=for-the-badge">
-  </a>
-  <a href="http://seanox.de/contact">
-    <img src="https://img.shields.io/badge/support-active-green?style=for-the-badge">
-  </a>
+  <a href="https://github.com/seanox/xml-micro-exchange-games/pulls"
+    ><img src="https://img.shields.io/badge/development-active-green?style=for-the-badge"
+  ></a>  
+  <a href="https://github.com/seanox/xml-micro-exchange-games/issues"
+    ><img src="https://img.shields.io/badge/maintenance-active-green?style=for-the-badge"
+  ></a>
+  <a href="http://seanox.de/contact"
+    ><img src="https://img.shields.io/badge/support-active-green?style=for-the-badge"
+  ></a>
 </p>
 
 # Description
@@ -22,10 +22,8 @@ beloved online rummy has become so bad.
 Since we do not own the rights to the required cards, we use free sources as a
 substitute. which can be customized.
 
-
 # Features
 - TODO:
-
 
 # Licence Agreement
 Seanox Software Solutions ist ein Open-Source-Projekt, im Folgenden
@@ -46,13 +44,10 @@ under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 CONDITIONS OF ANY KIND, either express or implied. See the License for the
 specific language governing permissions and limitations under the License.
 
-
 # System Requirement
-- ECMAScript 6 support or higher (normally the current browsers)  
-  Engines (tested): Blink, Gecko, Goanna, WebKit, ...  
-  Browsers used for testing: Basilisk, Firefox, Microsoft Edge, Google Chrome, Safari (MacOS/iOS)
+- ECMAScript 6+ support  
+  Normally the current browsers and browsers from mid 2015.  
 - Web server for hosting
-
 
 # Downloads
 TODO:
@@ -62,8 +57,7 @@ TODO:
 
 [Read more](https://raw.githubusercontent.com/seanox/xml-micro-exchange-games/master/CHANGES)
 
-
 # Contact
 [Issues](https://github.com/seanox/xml-micro-exchange-games/issues)  
 [Requests](https://github.com/seanox/xml-micro-exchange-games/pulls)  
-[Mail](http://seanox.de/contact)
+[Mail](https://seanox.com/contact)
