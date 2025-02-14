@@ -21,7 +21,8 @@ const GAMES = [GAME_MEMORY, GAME_RUMMY, GAME_SNAKE];
 const platform = Reactive({
     dock() {
         const meta = utils.query.read();
-        if (meta && meta.length > 0 && GAMES.includes(meta[0]))
+        if (meta && meta.length > 0
+                && GAMES.includes(meta[0]))
             platform.selection = meta[0];
     },
     get games() {
@@ -45,11 +46,5 @@ const platform = Reactive({
 Composite.listen(Composite.EVENT_MODULE_UNDOCK, () => {
     platform.selection = null;
 });
-
-// in case of manual changes the page should be reloaded
-// without SiteMap this is easier, because you don't have to care about the
-// status of the view(s).
-window.addEventListener("hashchange",
-    () => window.location.reload(), false);
 
 #export platform;

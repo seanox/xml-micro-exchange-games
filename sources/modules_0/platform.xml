@@ -3,7 +3,7 @@
   <en>
     <label key="platform.mail.title" value="XMEX {0}: {1}"/>
     <label key="platform.room.text">
-      Play with up to four of your friends in a private room.
+      Play with up to four of your friends in your own room.
     </label>
     <label key="platform.privacy.text">
       This platform focuses on anonymity and thus neither personal data is
@@ -21,7 +21,7 @@
   <de>
     <label key="platform.mail.title" value="XMEX {0}: {1}"/>
     <label key="platform.room.text">
-      Spiele mit bis zu vier von Deinen Freunden in einem privaten Raum.
+      Spiele mit bis zu vier von Deinen Freunden in einem eigenen Raum.
     </label>
     <label key="platform.privacy.text">
       Bei dieser Plattform steht die Anonymität im Vordergrund und so werden

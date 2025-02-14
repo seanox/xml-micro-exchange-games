@@ -22,7 +22,7 @@
           {{messages.games.memory.settings.players.description}}
         </span>
       </h2>
-      <div iterate="{{player:games.memory.game.settings.players}}">
+      <div iterate="{{player:games.memory.game.settings.players.length}}">
         <p>
           <label for="players:{{player.index}}">
             Alias {{player.index +1}}

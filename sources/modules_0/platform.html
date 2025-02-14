@@ -1,11 +1,19 @@
+
+
 <section condition="{{!platform.selection}}">
   <p condition="{{!platform.selection}}">
     {{messages.platform.room.text}}
   </p>
+  <p>
+
+  </p>
+  <p>
+    <input/>
+  </p>
   <div iterate="{{game:platform.games}}">
     <button id="select#{{game.item.name}}"
         disabled="{{game.item.disabled}}">
-      <div id="tile@games:{{game.item.name}}" composite></div>
+      <div id="tile@games:{{game.item.name}}" composite/>
     </button>
   </div>
   <p condition="{{!platform.selection}}">
