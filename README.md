@@ -19,8 +19,8 @@ It will probably be a long-term project where it is not yet clear when and if
 there will be a release. The project is driven by personal interest, since our
 beloved online rummy has become so bad.
 
-Since we do not own the rights to the required cards, we use free sources as a
-substitute. which can be customized.
+Since we do not own the rights to the required cards and designs, we use free
+sources as a substitute, which can be customized.
 
 # Features
 - TODO:
