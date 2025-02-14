@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<locales>
-  <en>
-    <label key="games.snake.title" value="Snake"/>
-  </en>
-  <de>
-    <label key="games.snake.title" value="Snake"/>
-  </de>
-</locales>
