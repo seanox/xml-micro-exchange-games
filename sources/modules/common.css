@@ -1,0 +1,11 @@
+body {
+  background-color: #229922;
+  background-image:
+      radial-gradient(circle, #99CC99 0%, #229922 70%, #006600 100%),
+      url('assets/patterns/skulls.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center;
+  background-blend-mode: multiply;
+}
