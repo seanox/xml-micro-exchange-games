@@ -1,11 +1,11 @@
 #initiation\@views {
-    counter-reset: custom-counter;
-    list-style-type: none;
+  counter-reset: custom-counter;
+  list-style-type: none;
 }
 #initiation\@views h1::before {
-    color: var(--color-text-dark);
-    counter-increment: custom-counter;
-    content: counter(custom-counter) ".";
-    position: absolute;
-    left: -1em;
+  color: var(--color-text-dark);
+  counter-increment: custom-counter;
+  content: counter(custom-counter) ".";
+  position: absolute;
+  left: -1em;
 }
