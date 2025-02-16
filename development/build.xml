@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<project name="xmex-games" default="usage" basedir="..">
+<project name="xmex-games" default="usage" basedir="${ant.file}/../..">
   <target name="usage">
     <echo>Following targets are available:                               </echo>
     <echo>                                                               </echo>
@@ -8,7 +8,7 @@
     <echo>  release    Creates the release as archive for distribution   </echo>
     <echo>             Synchronizes README.md with CHANGES               </echo>
     <echo>                                                               </echo>
-    <echo>  start      Starts the included development server            </echo>
+    <echo>  run        Starts the included development server            </echo>
     <echo>             Console output of the access log                  </echo>
     <echo>                                                               </echo>
     <echo>  stop       Stops the included development server             </echo>
@@ -82,9 +82,10 @@
     <!-- TODO -->
   </target>
 
-  <target name="start">
+  <target name="run">
     <java classpath="server/devwex.jar" classname="com.seanox.devwex.Service"
         dir="server" fork="true" spawn="false">
+      <jvmarg value="-Dfile.encoding=ISO-8859-1"/>
       <arg value="start"/>
     </java>
   </target>
@@ -92,6 +93,7 @@
   <target name="stop">
     <java classpath="server/devwex.jar" classname="com.seanox.devwex.Service"
         dir="server" fork="true" spawn="false">
+      <jvmarg value="-Dfile.encoding=ISO-8859-1"/>
       <arg value="stop"/>
       <arg value="127.0.0.1:8001"/>
     </java>

@@ -11,6 +11,23 @@
 
 
 
+@font-face {
+  font-family: "garamond";
+  src: url("./assets/fonts/EBGaramond-Regular.woff2") format("woff2"),
+       url("./assets/fonts/EBGaramond-Regular.woff") format("woff"),
+       url("./assets/fonts/EBGaramond-Regular.ttf") format("truetype"),
+       url("./assets/fonts/EBGaramond-Regular.svg#Crayon Libre") format("svg");
+}
+@font-face {
+  font-family: "roboto";
+  src: url("./assets/fonts/RobotoCondensed-Regular.woff2") format("woff2"),
+       url("./assets/fonts/RobotoCondensed-Regular.woff") format("woff"),
+       url("./assets/fonts/RobotoCondensed-Regular.ttf") format("truetype"),
+       url("./assets/fonts/RobotoCondensed-Regular.svg#Crayon Libre") format("svg");
+}
+
+
+
 body {
   background-color: var(--color-background);
   background-attachment: fixed;
