@@ -1,11 +1,49 @@
+:root {
+  --color-background-light: #99CC99;
+  --color-background: #229922;
+  --color-background-dark: #006600;
+  --color-text: #EEEEDD;
+  --color-text-headline: #EEEEDD;
+  --color-text-subline: #779966;
+  --color-text-dark: #AABB99;
+  --color-shadow: rgba(0, 0, 0, 0.25);
+}
+
+
+
 body {
-  background-color: #229922;
+  background-color: var(--color-background);
+  background-attachment: fixed;
+  background-blend-mode: multiply;
   background-image:
-      radial-gradient(circle, #99CC99 0%, #229922 70%, #006600 100%),
-      url('assets/patterns/skulls.png');
+      radial-gradient(circle, var(--color-background-light) 0%,
+          var(--color-background) 70%, var(--color-background-dark) 100%),
+      url('./assets/patterns/skulls.png');
+  background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  background-attachment: fixed;
-  background-position: center;
-  background-blend-mode: multiply;
+  color: var(--color-text-dark);
+  font: 1em roboto;
+  margin: 0em;
+  padding: 2em 8em;
+}
+
+
+
+body > main {
+}
+body > main * {
+  color: var(--color-text);
+  text-shadow: 1px 1px 3px var(--color-shadow);
+}
+body > main > h1 {
+  font: 2.5em garamond;
+  height: 2em;
+  position: relative;
+}
+body > main > h1 > span {
+  color: var(--color-text-subline);
+  font-size: 0.75em;
+  position: relative;
+  top: -0.75em;
 }
