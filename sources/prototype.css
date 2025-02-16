@@ -2,11 +2,15 @@
   --color-background-light: #99CC99;
   --color-background: #229922;
   --color-background-dark: #006600;
-  --color-text: #EEEEDD;
+  --color-text: #AABB99;
   --color-text-headline: #EEEEDD;
   --color-text-subline: #779966;
   --color-text-dark: #AABB99;
-  --color-shadow: rgba(0, 0, 0, 0.25);
+  --color-selection: #EEDD66;
+  --color-opacity-middle: rgba(0, 0, 0, 0.25);
+  --color-opacity-light: rgba(0, 0, 0, 0.125);
+  --color-transition: background-color 0.3s ease;
+  --shadow-light: 1px 1px 3px var(--color-opacity-middle);
 }
 
 
@@ -45,13 +49,43 @@ body {
   padding: 2em 8em;
 }
 
+
+
 body > main {
 }
 body > main * {
   color: var(--color-text);
-  text-shadow: 1px 1px 3px var(--color-shadow);
+  text-shadow: var(--shadow-light);
 }
+body > main button {
+  background: var(--color-opacity-middle);
+  border: 1px solid;
+  border-radius: 2px;
+  box-shadow: var(--shadow-light);
+  cursor: pointer;
+  padding: 1em;
+  text-align: center;
+  transition: background-color 0.3s ease;
+}
+body > main label {
+  color: var(--color-text-headline);
+  display: block;
+}
+body > main input {
+  background: var(--color-opacity-light);
+  border: 1px solid;
+  border-radius: 2px;
+  box-shadow: var(--shadow-light);
+  display: block;
+  padding: 0.5em;
+  transition: background-color 0.3s ease;
+}
+body > main label + input {
+  margin-top: 0.5em;
+}
+
 body > main > h1 {
+  color: var(--color-text-headline);
   font: 2.5em garamond;
   height: 2em;
   position: relative;
@@ -61,6 +95,11 @@ body > main > h1 > span {
   font-size: 0.75em;
   position: relative;
   top: -0.75em;
+}
+body > main *[selected] {
+  border-color: var(--color-selection)!important;
+  border-width: 2px!important;
+  box-sizing: border-box!important;
 }
 
 
@@ -73,6 +112,29 @@ body > main > h1 > span {
   color: var(--color-text-dark);
   counter-increment: custom-counter;
   content: counter(custom-counter) ".";
-  position: absolute;
   left: -1em;
+  position: absolute;
+}
+#initiation\@views h1[disabled] {
+  opacity: 0.5;
+}
+#initiation\@views #selection button {
+}
+#initiation\@views #selection button * {
+  color: var(--color-text-headline);
+  display: block;
+}
+#initiation\@views #selection button * + * {
+  padding-top: 1em;
+}
+#initiation\@views #selection button + button {
+  xmargin-left: 2em;
+}
+#initiation\@views #selection div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2em;
+}
+#initiation\@views #selection div {
+  flex: 1 1 auto;
 }
