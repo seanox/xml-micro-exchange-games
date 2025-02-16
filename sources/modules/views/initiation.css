@@ -4,8 +4,8 @@
 }
 #initiation\@views h1::before {
   color: var(--color-text-dark);
-  counter-increment: custom-counter;
   content: counter(custom-counter) ".";
-  position: absolute;
+  counter-increment: custom-counter;
   left: -1em;
+  position: absolute;
 }
