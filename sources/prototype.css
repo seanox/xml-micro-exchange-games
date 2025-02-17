@@ -44,9 +44,11 @@ body {
   background-repeat: no-repeat;
   background-size: cover;
   color: var(--color-text-dark);
+  cursor: default;
   font: 1em roboto;
   margin: 0em;
   padding: 2em 8em;
+  user-select: none;
 }
 
 
@@ -62,44 +64,73 @@ body > main button {
   border: 1px solid;
   border-radius: 2px;
   box-shadow: var(--shadow-light);
+  color: var(--color-text-headline);
   cursor: pointer;
   padding: 1em;
   text-align: center;
   transition: background-color 0.3s ease;
 }
+body > main > button span {
+  line-height: 0em;
+  margin-right: 0.25em;
+}
 body > main label {
   color: var(--color-text-headline);
-  display: block;
+}
+body > main label {
+}
+body > main label span {
+  color: var(--color-selection);
 }
 body > main input {
   background: var(--color-opacity-light);
   border: 1px solid;
   border-radius: 2px;
   box-shadow: var(--shadow-light);
-  display: block;
   padding: 0.5em;
   transition: background-color 0.3s ease;
 }
 body > main label + input {
+  display: block;
   margin-top: 0.5em;
 }
-
+body > main button + label {
+  margin-left: 0.5em;
+  position: relative;
+  top: 0.25em;
+}
 body > main > h1 {
   color: var(--color-text-headline);
   font: 2.5em garamond;
-  height: 2em;
+  line-height: 0.8em;
   position: relative;
 }
 body > main > h1 > span {
   color: var(--color-text-subline);
   font-size: 0.75em;
   position: relative;
-  top: -0.75em;
 }
 body > main *[selected] {
   border-color: var(--color-selection)!important;
   border-width: 2px!important;
   box-sizing: border-box!important;
+}
+body > main button[type='checkbox']{
+  background: var(--color-opacity-light);
+  position: relative;
+}
+body > main button[type='checkbox']::before {
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+body > main button[type='checkbox'][checked]::before {
+  content: "\2714";
+}
+body > main button[type='checkbox'] + label {
+  position: relative;
+  top: 0.375em;
 }
 
 
@@ -110,8 +141,8 @@ body > main *[selected] {
 }
 #initiation\@views h1::before {
   color: var(--color-text-dark);
-  counter-increment: custom-counter;
   content: counter(custom-counter) ".";
+  counter-increment: custom-counter;
   left: -1em;
   position: absolute;
 }
@@ -124,11 +155,11 @@ body > main *[selected] {
   color: var(--color-text-headline);
   display: block;
 }
-#initiation\@views #selection button * + * {
-  padding-top: 1em;
+#initiation\@views #selection button span {
+  padding: 1em;
 }
-#initiation\@views #selection button + button {
-  xmargin-left: 2em;
+#initiation\@views #selection button * + * {
+  padding-top: 2em!important;
 }
 #initiation\@views #selection div {
   display: flex;

@@ -46,7 +46,7 @@
       </h1>
       <section id="datasource">
         <p>
-          <label for="name">Room Name</label>
+          <label for="name">Room Name <span>must be at least 10 characters</span></label>
           <input type="text" id="name"/>
         </p>
         <p>
@@ -88,15 +88,18 @@
       </h1>
       <section id="invitation">
         <p>
-          <input type="checkbox">
+          <button type="checkbox"></button>
           <label>I accept the <a id="privacyLink">Privacy Policy</a></label>
         </p>
         <p>
-          <input type="checkbox">
+          <button type="checkbox" checked="true"></button>
           <label>I accept the <a id=termsLink">Terms of Service</a></label>
         </p>
         <p>
-          <button id="invitationButton">Send Invitation</button>
+          <button id="invitationButton">
+            <span>&#10095;</span>
+            Send Invitation
+          </button>
         </p>
       </section>
     </main>
@@ -111,6 +114,20 @@
     <main id="terms">
     </main>
     <main id="privacy">
+    </main>
+    <main id="error">
+      <h1>An unexpected error has occurred.</h1>
+      <p>
+        Detailed error message
+      </p>
+      <p>
+        Please reload the application.<br/>
+        If the problem persists, please contact support.
+      </p>
+      <button>
+        <span>&#10095;</span>
+        Reload application
+      </button>
     </main>
     <footer>
       TODO: Link to Privacy + Terms
