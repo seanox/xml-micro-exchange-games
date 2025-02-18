@@ -10,7 +10,14 @@
   --color-opacity-middle: rgba(0, 0, 0, 0.25);
   --color-opacity-light: rgba(0, 0, 0, 0.125);
   --color-transition: background-color 0.3s ease;
+
   --shadow-light: 1px 1px 3px var(--color-opacity-middle);
+
+  --size-base: 16;
+  --size-font: calc(var(--size-base) * 1px);
+  --size-button: calc((42.5 / var(--size-base)) * 1em);
+  --size-checkbox: calc(31.75 / var(--size-base) * 1em);
+  --size-input: calc((25.25 / var(--size-base)) * 1em);
 }
 
 
@@ -23,11 +30,11 @@
        url("./assets/fonts/EBGaramond-Regular.svg#Crayon Libre") format("svg");
 }
 @font-face {
-  font-family: "roboto";
-  src: url("./assets/fonts/RobotoCondensed-Regular.woff2") format("woff2"),
-       url("./assets/fonts/RobotoCondensed-Regular.woff") format("woff"),
-       url("./assets/fonts/RobotoCondensed-Regular.ttf") format("truetype"),
-       url("./assets/fonts/RobotoCondensed-Regular.svg#Crayon Libre") format("svg");
+  font-family: "open-sans";
+  src: url("./assets/fonts/OpenSans-Regular.woff2") format("woff2"),
+       url("./assets/fonts/OpenSans-Regular.woff") format("woff"),
+       url("./assets/fonts/OpenSans-Regular.ttf") format("truetype"),
+       url("./assets/fonts/OpenSans-Regular.svg#Crayon Libre") format("svg");
 }
 
 
@@ -45,7 +52,7 @@ body {
   background-size: cover;
   color: var(--color-text-dark);
   cursor: default;
-  font: 1em roboto;
+  font: var(--size-font) open-sans;
   margin: 0em;
   padding: 2em 8em;
   user-select: none;
@@ -58,6 +65,7 @@ body > main {
 body > main * {
   color: var(--color-text);
   text-shadow: var(--shadow-light);
+  font: 1em open-sans;
 }
 body > main button {
   background: var(--color-opacity-middle);
@@ -66,13 +74,32 @@ body > main button {
   box-shadow: var(--shadow-light);
   color: var(--color-text-headline);
   cursor: pointer;
-  padding: 1em;
+  height: var(--size-button)!important;
+  padding: 0em 0.5em;
   text-align: center;
   transition: background-color 0.3s ease;
 }
-body > main > button span {
-  line-height: 0em;
+body > main button span {
   margin-right: 0.25em;
+}
+body > main button[type='checkbox'] {
+  background: var(--color-opacity-light);
+  height: var(--size-checkbox)!important;
+  padding: 0em;
+  width: var(--size-checkbox);
+}
+body > main button[type='checkbox']::before {
+  content: "\00A0";
+  position: relative;
+  top: -0.5px;
+}
+body > main button[type='checkbox'][checked]::before {
+  content: "\2714";
+}
+body > main button[type='checkbox'] + label {
+  position: relative;
+  top: -0.0175em;
+  margin-left: 0.5em;
 }
 body > main label {
   color: var(--color-text-headline);
@@ -87,6 +114,7 @@ body > main input {
   border: 1px solid;
   border-radius: 2px;
   box-shadow: var(--shadow-light);
+  height: var(--size-input);
   padding: 0.5em;
   transition: background-color 0.3s ease;
 }
@@ -99,38 +127,35 @@ body > main button + label {
   position: relative;
   top: 0.25em;
 }
+body > main *[selected] {
+  border-color: var(--color-selection)!important;
+  border-width: 2px!important;
+  box-sizing: border-box!important;
+}
+body > main *[disabled] {
+  opacity: 0.5;
+}
+body > main button[disabled],
+body > main input[disabled],
+body > main a[disabled] {
+  cursor: default;
+}
+body > main a {
+  cursor: pointer;
+}
 body > main > h1 {
   color: var(--color-text-headline);
   font: 2.5em garamond;
   line-height: 0.8em;
   position: relative;
 }
+body > main > h1 * {
+  font-family: garamond;
+}
 body > main > h1 > span {
   color: var(--color-text-subline);
   font-size: 0.75em;
   position: relative;
-}
-body > main *[selected] {
-  border-color: var(--color-selection)!important;
-  border-width: 2px!important;
-  box-sizing: border-box!important;
-}
-body > main button[type='checkbox']{
-  background: var(--color-opacity-light);
-  position: relative;
-}
-body > main button[type='checkbox']::before {
-  left: 50%;
-  position: absolute;
-  top: 50%;
-  transform: translate(-50%, -50%);
-}
-body > main button[type='checkbox'][checked]::before {
-  content: "\2714";
-}
-body > main button[type='checkbox'] + label {
-  position: relative;
-  top: 0.375em;
 }
 
 
@@ -146,9 +171,6 @@ body > main button[type='checkbox'] + label {
   left: -1em;
   position: absolute;
 }
-#initiation\@views h1[disabled] {
-  opacity: 0.5;
-}
 #initiation\@views #selection div {
   display: flex;
   flex-wrap: wrap;
@@ -158,6 +180,8 @@ body > main button[type='checkbox'] + label {
   flex: 1 1 auto;
 }
 #initiation\@views #selection div button {
+  height: unset!important;
+  padding: 0.75em;
 }
 #initiation\@views #selection div button * {
   color: var(--color-text-headline);
