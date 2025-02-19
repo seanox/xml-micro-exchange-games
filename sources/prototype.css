@@ -67,6 +67,17 @@ body > main * {
   text-shadow: var(--shadow-light);
   font: 1em open-sans;
 }
+body > main a:not([disabled]):active,
+body > main button:not([disabled]):active {
+  box-shadow: none!important;
+  display: inline-block;
+  opacity: 0.75;
+  transform: scale(0.975);
+}
+body > main a:not([disabled]):active *,
+body > main button:not([disabled]):active * {
+  box-shadow: none;
+}
 body > main button {
   background: var(--color-opacity-middle);
   border: 1px solid;
@@ -75,17 +86,20 @@ body > main button {
   color: var(--color-text-headline);
   cursor: pointer;
   height: var(--size-button)!important;
-  padding: 0em 0.75em;
+  padding: 0em;
   text-align: center;
   transition: background-color 0.3s ease;
 }
-body > main button span {
+body > main button:not([type]) {
+  padding: 0em 0.75em;
+}
+body > main button:not([type])::before {
+  content: "\276F";
   margin-right: 0.125em;
 }
 body > main button[type='checkbox'] {
   background: var(--color-opacity-light);
   height: var(--size-checkbox)!important;
-  padding: 0em;
   width: var(--size-checkbox);
 }
 body > main button[type='checkbox']::before {
