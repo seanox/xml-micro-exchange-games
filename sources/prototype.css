@@ -75,12 +75,12 @@ body > main button {
   color: var(--color-text-headline);
   cursor: pointer;
   height: var(--size-button)!important;
-  padding: 0em 0.5em;
+  padding: 0em 0.75em;
   text-align: center;
   transition: background-color 0.3s ease;
 }
 body > main button span {
-  margin-right: 0.25em;
+  margin-right: 0.125em;
 }
 body > main button[type='checkbox'] {
   background: var(--color-opacity-light);
